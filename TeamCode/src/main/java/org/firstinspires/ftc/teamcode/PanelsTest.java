@@ -8,17 +8,17 @@ package org.firstinspires.ftc.teamcode;
  * Run this opmode to measure the time between the while loop cycle
  */
 
-//import com.bylazar.telemetry.PanelsTelemetry;
-//import com.bylazar.telemetry.TelemetryManager;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="Panels Test", group="Tests")
+@TeleOp(name="PanelsTest", group="Tests")
 public class PanelsTest extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-//        TelemetryManager telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+        TelemetryManager telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         waitForStart();
 
         long lastTime = System.nanoTime();
