@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -7,6 +9,8 @@ import com.qualcomm.robotcore.hardware.Servo;
  * A class to control a Continuous Rotation (CR) Servo like it's a motor
  */
 public class ServoMotor {
+
+    TelemetryManager telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
     private final Servo servo;
     private final AnalogInput servoPos;
@@ -20,6 +24,8 @@ public class ServoMotor {
     public ServoMotor(Servo servo, AnalogInput servoPos) {
         this.servo = servo;
         this.servoPos = servoPos;
+        absolutePosition = currentRotationPercent();
+        lastPosition = absolutePosition;
     }
 
     // Drives the servo to some target in absolute terms. If the servo's is
@@ -35,15 +41,23 @@ public class ServoMotor {
 
     // Must be called once every cycle
     public void update() {
+        servo.setPosition(0.75);
         // Update the current position
+        double current = currentRotationPercent();
+
+        absolutePosition = absolutePosition + (current - lastPosition);
+
+
         // Send a signal to drive the servo to the desired position
         // Send telemetry information (power and position)
+
+        lastPosition = current;
     }
 
     // Returns a value between 0 and 1 indicating the instantaneous position
     // of the servo. This is not like ticks on a normal motor's encoder because
     // if the value is climbing, then when it passes 1.0, it'll wrap back to 0.0.
-    private double currentServerPosition() {
+    private double currentRotationPercent() {
         return servoPos.getVoltage() / servoPos.getMaxVoltage();
     }
 }

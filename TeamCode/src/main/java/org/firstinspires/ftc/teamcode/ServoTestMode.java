@@ -14,8 +14,8 @@ public class ServoTestMode extends LinearOpMode {
     public void runOpMode() {
 
         ServoMotor motor = new ServoMotor(
-                hardwareMap.get(Servo.class, ""),
-                hardwareMap.get(AnalogInput.class, "")
+                hardwareMap.get(Servo.class, "360servo"),
+                hardwareMap.get(AnalogInput.class, "servopose")
         );
 
         waitForStart();
