@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
  */
 public class ServoMotor {
 
-    TelemetryManager telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+    TelemetryManager panels = PanelsTelemetry.INSTANCE.getTelemetry();
 
     private final Servo servo;
     private final AnalogInput servoPos;
@@ -33,6 +33,7 @@ public class ServoMotor {
     // cause it to make 2 full rotations. Then setPosition(1.5) should cause
     // it to make a half rotation in the opposite direction.
     public void setPosition(double target) {
+        targetPosition = target;
     }
 
     public double getPosition() {
@@ -41,18 +42,37 @@ public class ServoMotor {
 
     // Must be called once every cycle
     public void update() {
-        servo.setPosition(0.75);
+
         // Update the current position
         double current = currentRotationPercent();
 
         absolutePosition = absolutePosition + (current - lastPosition);
+        if(current - lastPosition > 0.4) {
+            absolutePosition = absolutePosition - 1.0;
+        } else if (current - lastPosition < -0.4) {
+            absolutePosition = absolutePosition+ 1.0;
+        }
 
+        double error = targetPosition - absolutePosition;
+        double power = 0.5 + error * -1.0;
+        if (power < 0) {
+            power = 0;
+        }
+        if (power > 1)
+            power = 1;
+        servo.setPosition(power);
+        panels.addData("servotarget", targetPosition);
+        panels.addData("servopower", power);
 
         // Send a signal to drive the servo to the desired position
         // Send telemetry information (power and position)
+        panels.addData("servopos", absolutePosition);
+
 
         lastPosition = current;
     }
+
+
 
     // Returns a value between 0 and 1 indicating the instantaneous position
     // of the servo. This is not like ticks on a normal motor's encoder because
