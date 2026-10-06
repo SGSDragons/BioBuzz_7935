@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -7,15 +9,17 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystem.ServoMotor;
 
-@TeleOp(name="Servo Test", group="Tests")
+@TeleOp(name="Chase Servo Test", group="Tests")
 public class ServoTestMode extends LinearOpMode {
 
     @Override
     public void runOpMode() {
 
+        TelemetryManager panels = PanelsTelemetry.INSTANCE.getTelemetry();
+
         ServoMotor motor = new ServoMotor(
-                hardwareMap.get(Servo.class, ""),
-                hardwareMap.get(AnalogInput.class, "")
+                hardwareMap.get(Servo.class, "360servo"),
+                hardwareMap.get(AnalogInput.class, "servopose")
         );
 
         waitForStart();
@@ -32,7 +36,10 @@ public class ServoTestMode extends LinearOpMode {
             }
             motor.setPosition(targetPosition);
 
+            panels.addData("opmode target", targetPosition);
+
             motor.update();
+            panels.update();
         }
 
     }
