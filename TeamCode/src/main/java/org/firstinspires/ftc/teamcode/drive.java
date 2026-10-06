@@ -30,17 +30,9 @@ public class drive extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-
-
-
-
             telemetry.addData("Left Stick", gamepad1.left_stick_x);
 
-            follower.manual( //this does not work and I can't figure out why
-                    -gamepad1.left_stick_y,
-                    gamepad1.left_stick_x,
-                    gamepad1.right_stick_x
-            );
+            follower.manual(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
             follower.update();
         }
     }
