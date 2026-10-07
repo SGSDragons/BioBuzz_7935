@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.subsystem.ServoMotor;
+import org.firstinspires.ftc.teamcode.subsystems.ServoMotor;
 
 @TeleOp(name="Servo Test", group="Tests")
 public class ServoTestMode extends LinearOpMode {
