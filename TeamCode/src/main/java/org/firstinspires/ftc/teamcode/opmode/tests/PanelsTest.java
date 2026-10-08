@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmode.tests;
 
 /*
  * When panels is successfully configured, uncomment all commented lines.
@@ -13,7 +13,7 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="PanelsTest", group="Tests")
+@TeleOp(name="PanelsTest", group="Test")
 public class PanelsTest extends LinearOpMode {
     @Override
     public void runOpMode() {

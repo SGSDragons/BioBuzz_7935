@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.subsystem.ServoMotor;
 import org.firstinspires.ftc.teamcode.subsystem.Turret;
 
-@TeleOp(name = "Turret Joystick")
+@TeleOp(name = "Turret Joystick", group="Test")
 public class TurretJoystick extends LinearOpMode {
     static final double STICK_ENGAGE = 0.7;
     static final double STICK_RELEASE = 0.4;
@@ -18,7 +18,7 @@ public class TurretJoystick extends LinearOpMode {
         ServoMotor servo = new ServoMotor(
                 hardwareMap.get(Servo.class, "servo"),
                 hardwareMap.get(AnalogInput.class, "servoEncoder"));
-        Turret turret = new Turret(servo, 6, 14); // your real tooth counts
+        Turret turret = new Turret(servo, 6, 14); // Your real tooth counts
 
         boolean steering = false;
         waitForStart();
