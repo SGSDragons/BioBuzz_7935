@@ -10,9 +10,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class MotorUtils {
 
-    public Double getcurent(int motor) {
+    public static Double GetCurent(int motor) {
 
-        //I have not tested this code. I will remove this line once I have confirmed it works)
+        //I have not tested this code. I will remove this line once I have confirmed it works) // it does build with regular ./gradlew build.
 
         //this double can be used by giving it motor number (1 = frontleft, 2 = frontright, 3 = backleft, 4 = backright).
         //it returns the current being used in a motor in amps. if the value is null, the input int was not between 1 and 4, or the library had a problem.
