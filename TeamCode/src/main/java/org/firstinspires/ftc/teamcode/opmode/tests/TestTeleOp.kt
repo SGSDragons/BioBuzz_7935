@@ -10,12 +10,12 @@ import org.firstinspires.ftc.teamcode.subsystem.FieldDrawing
 
 
 @TeleOp(name = "TeleOp Test", group = "Test")
-class TestTeleOp: OpMode()  {
+class TestTeleOp: OpMode() {
     private lateinit var follower: Follower
-    val fieldDrawing = FieldDrawing()
 
     override fun init() {
         follower = Constants.create(hardwareMap)
+        follower.localizer.setPose(Pose(24.0, 47.0, Math.toRadians(-90.0)))
     }
 
     override fun start() {
@@ -26,12 +26,8 @@ class TestTeleOp: OpMode()  {
             follower,
             -gamepad1.left_stick_y.toDouble(),
             -gamepad1.left_stick_x.toDouble(),
-            gamepad1.right_stick_x.toDouble()
+            -gamepad1.right_stick_x.toDouble()
         );
-
         follower.update()
-
-        val robotPose: Pose = follower.pose()
-        fieldDrawing.drawRobot(robotPose, 0.0)
     }
 }
