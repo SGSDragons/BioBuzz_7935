@@ -26,16 +26,16 @@ class FieldDrawing {
         // Draw the way that the robot is pointing
         panelsField.setStyle("#ed8796", "#ed8796", 2.0)
         panelsField.line(
-            robotX + 6*cos(robotHeading),
-            robotY + 6*sin(robotHeading))
+            robotX + 8*cos(robotHeading),
+            robotY + 8*sin(robotHeading))
 
         panelsField.moveCursor(robotX, robotY)
 
         // Draw the way that the turret is pointing
         panelsField.setStyle("#7dc4e4", "#7dc4e4", 1.0)
         panelsField.line(
-            robotX + 2*cos(turretRevolutions * (2 * PI)),
-            robotY + 2*sin(turretRevolutions * (2 * PI)))
+            robotX + 8*cos(turretRevolutions * (2 * PI)),
+            robotY + 8*sin(turretRevolutions * (2 * PI)))
 
         panelsField.moveCursor(robotX, robotY)
 
