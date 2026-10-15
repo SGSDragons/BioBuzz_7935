@@ -16,23 +16,24 @@ public class TurretJoystick extends LinearOpMode {
     @Override
     public void runOpMode() {
         ServoMotor servo = new ServoMotor(
-                hardwareMap.get(Servo.class, "servo"),
-                hardwareMap.get(AnalogInput.class, "servoEncoder"));
-        Turret turret = new Turret(servo, 6, 14); // your real tooth counts
+                hardwareMap.get(Servo.class, "360servo"),
+                hardwareMap.get(AnalogInput.class, "servopose"));
+        Turret turret = new Turret(servo, 12, 30); // your real tooth counts
 
         boolean steering = false;
         waitForStart();
 
         while (opModeIsActive()) {
             double x = gamepad1.right_stick_x;
-            double y = -gamepad1.right_stick_y;
+            double y = gamepad1.right_stick_y;
             double mag = Math.hypot(x, y);
 
             if (!steering && mag > STICK_ENGAGE) steering = true;
             else if (steering && mag < STICK_RELEASE) steering = false;
 
             if (steering) {
-                turret.setTargetAngle(Math.toDegrees(Math.atan2(x, y)));
+                double targetAngle = Math.toDegrees(Math.atan2(x, y));
+                turret.setTargetAngle(targetAngle);
             }
 
             turret.update();

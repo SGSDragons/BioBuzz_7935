@@ -36,14 +36,26 @@ public class Turret {
 
     /** Point the turret at this angle (any value; it gets wrapped to 0-360). */
     public void setTargetAngle(double degrees) {
-        double newTarget = normalize360(degrees);
+
+        double targetRotations = degrees / 360.0;
+        double servoRotations = servo.getPosition();
+        double turretRotations = servoRotations * turretRevsPerServoRev;
+
+
+        double turretWholeRotations = Math.floor(turretRotations);
+        double turretTarget = turretWholeRotations + targetRotations;
+//        if (turretTarget < turretRotations) {
+//            if (turretTarget - turretRotations > turretTarget)
+//        } else {
+//
+//        }
 
         // Same target as before? Don't recompute. This stops the turret from
         // flip-flopping directions if the target is exactly 180 degrees away.
-        if (Math.abs(angleDiff(newTarget, targetDeg)) < 0.01) {
-            return;
-        }
-        targetDeg = newTarget;
+//        if (Math.abs(angleDiff(newTarget, targetDeg)) < 0.01) {
+//            return;
+//        }
+
 
         // Shortest turret movement, in degrees (-180 to 180)
         double turretErrorDeg = angleDiff(targetDeg, getAngleDegrees());

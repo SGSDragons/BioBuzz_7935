@@ -23,8 +23,7 @@ public class ServoTestMode extends LinearOpMode {
         );
 
         waitForStart();
-
-        double targetPosition = 0.0;
+        double targetPosition = 1.0;
 
         while (opModeIsActive()) {
 
