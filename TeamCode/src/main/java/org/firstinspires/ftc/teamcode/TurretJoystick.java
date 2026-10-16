@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -11,16 +12,11 @@ import org.firstinspires.ftc.teamcode.subsystem.Turret;
 @TeleOp(name = "Turret Joystick")
 public class TurretJoystick extends LinearOpMode {
     static final double STICK_ENGAGE = 0.7;
-    static final double STICK_RELEASE = 0.4;
 
     @Override
     public void runOpMode() {
-        ServoMotor servo = new ServoMotor(
-                hardwareMap.get(Servo.class, "360servo"),
-                hardwareMap.get(AnalogInput.class, "servopose"));
-        Turret turret = new Turret(servo, 12, 30); // your real tooth counts
+        Turret turret = new Turret(hardwareMap);
 
-        boolean steering = false;
         waitForStart();
 
         while (opModeIsActive()) {
@@ -28,18 +24,18 @@ public class TurretJoystick extends LinearOpMode {
             double y = gamepad1.right_stick_y;
             double mag = Math.hypot(x, y);
 
-            if (!steering && mag > STICK_ENGAGE) steering = true;
-            else if (steering && mag < STICK_RELEASE) steering = false;
-
-            if (steering) {
+            if (gamepad1.a) {
+                turret.setTargetAngle(0.0);
+            } else if (gamepad1.b) {
+                turret.rehome();
+            } else if (mag > STICK_ENGAGE) {
                 double targetAngle = Math.toDegrees(Math.atan2(x, y));
                 turret.setTargetAngle(targetAngle);
             }
 
             turret.update();
-            telemetry.addData("Target", turret.getTargetAngleDegrees());
-            telemetry.addData("Angle", turret.getAngleDegrees());
-            telemetry.update();
+            PanelsTelemetry.INSTANCE.getTelemetry().update();
+
         }
     }
 }
