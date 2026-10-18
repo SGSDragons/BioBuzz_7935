@@ -15,7 +15,10 @@ public class TurretJoystick extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        Turret turret = new Turret(hardwareMap);
+        ServoMotor servo = new ServoMotor(
+                hardwareMap.get(Servo.class, "servo"),
+                hardwareMap.get(AnalogInput.class, "servoEncoder"));
+        Turret turret = new Turret(servo, 6, 14); // your real tooth counts
 
         waitForStart();
 

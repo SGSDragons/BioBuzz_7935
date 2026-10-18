@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmode.tests;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystem.ServoMotor;
 
-@TeleOp(name="Chase Servo Test", group="Tests")
+@TeleOp(name="Chase Servo Test", group="Test")
 public class ServoTestMode extends LinearOpMode {
 
     @Override
