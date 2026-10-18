@@ -23,8 +23,7 @@ public class ServoTestMode extends LinearOpMode {
         );
 
         waitForStart();
-
-        double targetPosition = 0.0;
+        double targetPosition = 1.0;
 
         while (opModeIsActive()) {
 
@@ -34,7 +33,11 @@ public class ServoTestMode extends LinearOpMode {
             if (gamepad1.bWasPressed()) {
                 targetPosition -= 1.0/3.0;
             }
-            motor.setPosition(targetPosition);
+            if (gamepad1.yWasPressed()) {
+                motor.setPower(0.2);
+            } else {
+                motor.gotoPosition(targetPosition);
+            }
 
             panels.addData("opmode target", targetPosition);
 

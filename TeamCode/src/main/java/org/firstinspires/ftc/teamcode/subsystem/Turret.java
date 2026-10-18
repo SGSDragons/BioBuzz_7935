@@ -1,5 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
 /**
  * A turret driven by a ServoMotor through a gear. You give it a target angle
  * in degrees; it picks the shortest route and tells the servo where to go.
@@ -7,69 +15,95 @@ package org.firstinspires.ftc.teamcode.subsystem;
  */
 public class Turret {
 
+    private final String servoPwmName = "360servo";
+    private final String servoAnalogName = "servopose";
+    private final String magswitchName = "turretmagnet";
+
+    // Set the gear ratio using constants
+    private final int servoTeeth = 12;
+    private final int turretTeeth = 30;
+
+    // Watch the negations:
+    // With two gears, increasing turret rotations means decreasing servo.
+    // With three, they will not be inverted.
+    private final double turretRevsPerServoRev = -(double)servoTeeth / turretTeeth;
+    private final DigitalChannel magSwitch;
+
     private final ServoMotor servo;
+    private double servoZeroPosition;
+    private boolean rehoming = true;
+    private double target = 0.0;
 
-    // How many turret rotations you get per servo rotation.
-    // Servo gear has 20 teeth, turret has 100 -> 0.2
-    private final double turretRevsPerServoRev;
-
-    private double targetDeg;
-
-    public Turret(ServoMotor servo, int servoTeeth, int turretTeeth) {
-        this.servo = servo;
-        this.turretRevsPerServoRev = (double) servoTeeth / turretTeeth;
-
-        // ServoMotor starts with its target at 0, which could make it move on
-        // startup. Tell it to hold where it is instead.
-        servo.setPosition(servo.getPosition());
-        targetDeg = getAngleDegrees();
+    @Configurable
+    public static class TurretBias {
+        public static double bias = 0.0;
     }
 
-    /** Current turret angle, 0 to 360. */
-    public double getAngleDegrees() {
-        return normalize360(servo.getPosition() * turretRevsPerServoRev * 360.0);
+    public Turret(HardwareMap hardwareMap) {
+        this.servo = new ServoMotor(
+            hardwareMap.get(Servo.class, servoPwmName),
+            hardwareMap.get(AnalogInput.class, servoAnalogName));
+        servo.setPower(0.0);
+
+        this.magSwitch = hardwareMap.get(DigitalChannel.class, magswitchName);
+        this.magSwitch.setMode(DigitalChannel.Mode.INPUT);
     }
 
-    public double getTargetAngleDegrees() {
-        return targetDeg;
+    public void rehome() {
+        this.rehoming = true;
     }
 
     /** Point the turret at this angle (any value; it gets wrapped to 0-360). */
     public void setTargetAngle(double degrees) {
-        double newTarget = normalize360(degrees);
-
-        // Same target as before? Don't recompute. This stops the turret from
-        // flip-flopping directions if the target is exactly 180 degrees away.
-        if (Math.abs(angleDiff(newTarget, targetDeg)) < 0.01) {
+        if (rehoming) {
             return;
         }
-        targetDeg = newTarget;
 
-        // Shortest turret movement, in degrees (-180 to 180)
-        double turretErrorDeg = angleDiff(targetDeg, getAngleDegrees());
+        double targetRotations = degrees / 360.0;
+        double servoRotations = servo.getPosition() - servoZeroPosition;
+        double turretRotations = servoRotations * turretRevsPerServoRev;
 
-        // Convert turret degrees -> turret rotations -> servo rotations
-        double servoErrorRevs = (turretErrorDeg / 360.0) / turretRevsPerServoRev;
+        double turretWholeRotations = Math.floor(turretRotations);
 
-        servo.setPosition(servo.getPosition() + servoErrorRevs);
+        target = turretWholeRotations + targetRotations;
+        if (target - turretRotations > 0.5) {
+            target -= 1.0;
+        } else if (turretRotations - target > 0.5) {
+            target += 1.0;
+        }
+
+        TelemetryManager telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+        telemetry.addData("turret/absRotations", turretRotations);
     }
 
-    /** True when within tolerance degrees of the target. */
-    public boolean atTarget(double toleranceDegrees) {
-        return Math.abs(angleDiff(targetDeg, getAngleDegrees())) <= toleranceDegrees;
+    public double getTurretRotations() {
+        double absPos = getAbsolutePosition();
+        return absPos - Math.floor(absPos);
     }
 
     /** Call once every loop. */
     public void update() {
         servo.update();
+        if (!rehoming) {
+            servo.gotoPosition(target/turretRevsPerServoRev + servoZeroPosition);
+        } else if (this.magSwitch.getState()) {
+            servo.setPower(0.2);
+        } else {
+            servo.setPower(0.0);
+            servoZeroPosition = servo.getPosition();
+            rehoming = false;
+        }
+
+        TelemetryManager telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+        telemetry.addData("turret/target", target);
+        telemetry.addData("turret/rotations", getTurretRotations());
+        telemetry.addData("turret/servozero", servoZeroPosition);
+        telemetry.addData("turret/rehoming", rehoming);
+        telemetry.addData("turret/magswitch", magSwitch.getState());
     }
 
-    private static double normalize360(double deg) {
-        deg %= 360;
-        return deg < 0 ? deg + 360 : deg;
-    }
-
-    private static double angleDiff(double target, double current) {
-        return (target - current + 540) % 360 - 180;
+    private double getAbsolutePosition() {
+        double servoRotations = servo.getPosition() - servoZeroPosition;
+        return servoRotations * turretRevsPerServoRev;
     }
 }

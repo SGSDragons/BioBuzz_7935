@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
-@TeleOp(name="amps_and_driving_test", group="Linear OpMode")
+@TeleOp(name="Amps and Driving Test", group="Test")
 
 //this code might have some bugs. I have not tested it, but it builds.
 public class AmpsAndDrivingTest extends LinearOpMode {
