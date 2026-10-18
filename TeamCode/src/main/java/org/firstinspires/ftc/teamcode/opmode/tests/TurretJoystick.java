@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmode.tests;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -15,10 +15,7 @@ public class TurretJoystick extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        ServoMotor servo = new ServoMotor(
-                hardwareMap.get(Servo.class, "servo"),
-                hardwareMap.get(AnalogInput.class, "servoEncoder"));
-        Turret turret = new Turret(servo, 6, 14); // your real tooth counts
+        Turret turret = new Turret(hardwareMap);
 
         waitForStart();
 
