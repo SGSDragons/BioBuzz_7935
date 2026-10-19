@@ -33,6 +33,10 @@ public class ServoMotor {
         return absolutePosition;
     }
 
+    public void rezero() {
+        absolutePosition = 0.0;
+    }
+
     public void setPower(double power) {
         if (power < -1.0) {
             power = -1.0;

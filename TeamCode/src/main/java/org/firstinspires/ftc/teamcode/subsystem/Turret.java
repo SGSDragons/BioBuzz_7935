@@ -30,13 +30,12 @@ public class Turret {
     private final DigitalChannel magSwitch;
 
     private final ServoMotor servo;
-    private double servoZeroPosition;
     private boolean rehoming = true;
     private double target = 0.0;
 
     @Configurable
     public static class TurretBias {
-        public static double bias = 0.0;
+        public static double bias = 0.338;
     }
 
     public Turret(HardwareMap hardwareMap) {
@@ -59,8 +58,8 @@ public class Turret {
             return;
         }
 
-        double targetRotations = degrees / 360.0;
-        double servoRotations = servo.getPosition() - servoZeroPosition;
+        double targetRotations = (degrees / 360.0) + TurretBias.bias;
+        double servoRotations = servo.getPosition();
         double turretRotations = servoRotations * turretRevsPerServoRev;
 
         double turretWholeRotations = Math.floor(turretRotations);
@@ -85,25 +84,25 @@ public class Turret {
     public void update() {
         servo.update();
         if (!rehoming) {
-            servo.gotoPosition(target/turretRevsPerServoRev + servoZeroPosition);
+            servo.gotoPosition(target/turretRevsPerServoRev);
         } else if (this.magSwitch.getState()) {
             servo.setPower(0.2);
         } else {
             servo.setPower(0.0);
-            servoZeroPosition = servo.getPosition();
+            servo.rezero();
             rehoming = false;
+            setTargetAngle(-TurretBias.bias);
         }
 
         TelemetryManager telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         telemetry.addData("turret/target", target);
         telemetry.addData("turret/rotations", getTurretRotations());
-        telemetry.addData("turret/servozero", servoZeroPosition);
         telemetry.addData("turret/rehoming", rehoming);
         telemetry.addData("turret/magswitch", magSwitch.getState());
     }
 
     private double getAbsolutePosition() {
-        double servoRotations = servo.getPosition() - servoZeroPosition;
+        double servoRotations = servo.getPosition();
         return servoRotations * turretRevsPerServoRev;
     }
 }
