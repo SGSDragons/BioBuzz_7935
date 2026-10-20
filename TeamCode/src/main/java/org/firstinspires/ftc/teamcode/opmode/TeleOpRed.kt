@@ -6,22 +6,35 @@ import com.pedropathing.math.Pose
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.pedro.Constants
-import org.firstinspires.ftc.teamcode.subsystem.FieldDrawing
+import org.firstinspires.ftc.teamcode.subsystem.Turret
+import java.lang.Math.toDegrees
+import kotlin.math.atan2
 
 
 @TeleOp(name = "Red Team TeleOp")
 class TeleOpRed: OpMode() {
     private lateinit var follower: Follower
+    private lateinit var turret: Turret
+
+    var targetTurretAngle: Double = 0.0
+
+    private var rezeroed: Boolean = false
+
+    private val leftHive: Array<Double> = arrayOf(58.0, 90.0)
+    private val rightHive: Array<Double> = arrayOf(58.0, 52.0)
 
     override fun init() {
         follower = Constants.create(hardwareMap)
-        follower.localizer.setPose(Pose(7.0, 82.0, 0.0))
+        follower.localizer.setPose(Pose(70.0, 70.0, Math.toRadians(90.0)))
+        turret = Turret(hardwareMap)
     }
 
     override fun start() {
     }
 
     override fun loop() {
+        val robotPose = follower.pose()
+
         if (gamepad1.a) {
             ManualDrive.driveOrHold(
                 follower,
@@ -37,6 +50,26 @@ class TeleOpRed: OpMode() {
             )
         }
 
+        if (gamepad1.right_trigger.toDouble() > 0.0) {
+            rezeroed = false
+            // Put shooter code here
+        } else {
+            if (!rezeroed && !turret.is_rehoming) {
+                turret.rehome()
+                rezeroed = true
+            }
+        }
+
+        if (gamepad1.x) {
+            targetTurretAngle = toDegrees(atan2(leftHive[1] - robotPose.y(), leftHive[0] - robotPose.x()))
+        } else if (gamepad1.y) {
+            targetTurretAngle = toDegrees(atan2(rightHive[1] - robotPose.y(), rightHive[0] - robotPose.x()))
+        }
+
+        val robotDegrees = toDegrees(robotPose.heading())
+        turret.setTargetAngle(targetTurretAngle - robotDegrees)
+
+        turret.update()
         follower.update()
     }
 }

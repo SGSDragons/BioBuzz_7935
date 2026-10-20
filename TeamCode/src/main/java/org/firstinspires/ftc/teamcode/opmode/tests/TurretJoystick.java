@@ -3,10 +3,7 @@ package org.firstinspires.ftc.teamcode.opmode.tests;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.subsystem.ServoMotor;
 import org.firstinspires.ftc.teamcode.subsystem.Turret;
 
 @TeleOp(name = "Turret Joystick", group = "Test")

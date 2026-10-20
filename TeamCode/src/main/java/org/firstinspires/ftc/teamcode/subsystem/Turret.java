@@ -48,6 +48,8 @@ public class Turret {
         this.magSwitch.setMode(DigitalChannel.Mode.INPUT);
     }
 
+    public boolean is_rehoming() {return rehoming;}
+
     public void rehome() {
         this.rehoming = true;
     }
