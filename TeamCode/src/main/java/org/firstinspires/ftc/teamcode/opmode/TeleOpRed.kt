@@ -3,31 +3,31 @@ package org.firstinspires.ftc.teamcode.opmode
 import com.pedropathing.follower.Follower
 import com.pedropathing.follower.ManualDrive
 import com.pedropathing.math.Pose
-import com.pedropathing.math.Vector2D
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
-import org.firstinspires.ftc.teamcode.subsystem.FieldDrawing
 import org.firstinspires.ftc.teamcode.subsystem.Turret
+import java.lang.Math.toDegrees
+import kotlin.math.atan2
 
 
 @TeleOp(name = "Red Team TeleOp")
 class TeleOpRed: OpMode() {
     private lateinit var follower: Follower
     private lateinit var turret: Turret
-
-    var targetTurretAngle: Double = 0.0
+    private lateinit var targeter: Targeter
 
     private var rezeroed: Boolean = false
 
-    private val leftHive = Vector2D.cartesian(58.0, 90.0)
-    private val rightHive = Vector2D.cartesian(58.0, 52.0)
+    private val leftHive: Array<Double> = arrayOf(58.0, 90.0)
+    private val rightHive: Array<Double> = arrayOf(58.0, 52.0)
 
     override fun init() {
         follower = Constants.create(hardwareMap)
         follower.localizer.setPose(Pose(70.0, 70.0, Math.toRadians(90.0)))
         turret = Turret(hardwareMap)
+
+        targeter = Targeter(follower)
     }
 
     override fun start() {
@@ -61,16 +61,7 @@ class TeleOpRed: OpMode() {
             }
         }
 
-        if (gamepad1.x) {
-            val botToHive = leftHive.minus(robotPose.toVector2D())
-            targetTurretAngle = Math.toDegrees(botToHive.theta())
-        } else if (gamepad1.y) {
-            val botToHive = rightHive.minus(robotPose.toVector2D())
-            targetTurretAngle = Math.toDegrees(botToHive.theta())
-        }
-
-        val robotDegrees = Math.toDegrees(robotPose.heading())
-        turret.setTargetAngle(targetTurretAngle - robotDegrees)
+        turret.setTargetAngle(targeter.getAimValue() * 360.0)
 
         turret.update()
         follower.update()
