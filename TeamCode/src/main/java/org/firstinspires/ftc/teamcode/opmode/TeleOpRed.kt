@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.pedro.Constants
 import org.firstinspires.ftc.teamcode.subsystem.Turret
+import org.firstinspires.ftc.teamcode.subsystem.Targeter
 import java.lang.Math.toDegrees
 import kotlin.math.atan2
 
@@ -15,8 +16,7 @@ import kotlin.math.atan2
 class TeleOpRed: OpMode() {
     private lateinit var follower: Follower
     private lateinit var turret: Turret
-
-    var targetTurretAngle: Double = 0.0
+    private lateinit var targeter: Targeter
 
     private var rezeroed: Boolean = false
 
@@ -27,6 +27,8 @@ class TeleOpRed: OpMode() {
         follower = Constants.create(hardwareMap)
         follower.localizer.setPose(Pose(70.0, 70.0, Math.toRadians(90.0)))
         turret = Turret(hardwareMap)
+
+        targeter = Targeter(follower)
     }
 
     override fun start() {
@@ -60,14 +62,7 @@ class TeleOpRed: OpMode() {
             }
         }
 
-        if (gamepad1.x) {
-            targetTurretAngle = toDegrees(atan2(leftHive[1] - robotPose.y(), leftHive[0] - robotPose.x()))
-        } else if (gamepad1.y) {
-            targetTurretAngle = toDegrees(atan2(rightHive[1] - robotPose.y(), rightHive[0] - robotPose.x()))
-        }
-
-        val robotDegrees = toDegrees(robotPose.heading())
-        turret.setTargetAngle(targetTurretAngle - robotDegrees)
+        turret.setTargetAngle(targeter.getAimValue() * 360.0)
 
         turret.update()
         follower.update()

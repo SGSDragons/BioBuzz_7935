@@ -6,16 +6,20 @@ import com.pedropathing.math.Pose
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.pedro.Constants
+import org.firstinspires.ftc.teamcode.subsystem.Targeter
 import org.firstinspires.ftc.teamcode.subsystem.Turret
 
 
 @TeleOp(name = "Blue Team TeleOp")
 class TeleOpBlue: OpMode() {
     private lateinit var follower: Follower
+    private lateinit var targeter: Targeter
 
     override fun init() {
         follower = Constants.create(hardwareMap)
         follower.localizer.setPose(Pose(136.0, 82.0, 0.0))
+
+        targeter = Targeter(follower)
     }
 
     override fun start() {
