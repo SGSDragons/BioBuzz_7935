@@ -3,12 +3,13 @@ package org.firstinspires.ftc.teamcode.opmode
 import com.pedropathing.follower.Follower
 import com.pedropathing.follower.ManualDrive
 import com.pedropathing.math.Pose
+import com.pedropathing.math.Vector2D
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
+import org.firstinspires.ftc.teamcode.subsystem.FieldDrawing
 import org.firstinspires.ftc.teamcode.subsystem.Turret
-import java.lang.Math.toDegrees
-import kotlin.math.atan2
 
 
 @TeleOp(name = "Red Team TeleOp")
@@ -20,8 +21,8 @@ class TeleOpRed: OpMode() {
 
     private var rezeroed: Boolean = false
 
-    private val leftHive: Array<Double> = arrayOf(58.0, 90.0)
-    private val rightHive: Array<Double> = arrayOf(58.0, 52.0)
+    private val leftHive = Vector2D.cartesian(58.0, 90.0)
+    private val rightHive = Vector2D.cartesian(58.0, 52.0)
 
     override fun init() {
         follower = Constants.create(hardwareMap)
@@ -61,15 +62,19 @@ class TeleOpRed: OpMode() {
         }
 
         if (gamepad1.x) {
-            targetTurretAngle = toDegrees(atan2(leftHive[1] - robotPose.y(), leftHive[0] - robotPose.x()))
+            val botToHive = leftHive.minus(robotPose.toVector2D())
+            targetTurretAngle = Math.toDegrees(botToHive.theta())
         } else if (gamepad1.y) {
-            targetTurretAngle = toDegrees(atan2(rightHive[1] - robotPose.y(), rightHive[0] - robotPose.x()))
+            val botToHive = rightHive.minus(robotPose.toVector2D())
+            targetTurretAngle = Math.toDegrees(botToHive.theta())
         }
 
-        val robotDegrees = toDegrees(robotPose.heading())
+        val robotDegrees = Math.toDegrees(robotPose.heading())
         turret.setTargetAngle(targetTurretAngle - robotDegrees)
 
         turret.update()
         follower.update()
+
+        Telemetry.send()
     }
 }

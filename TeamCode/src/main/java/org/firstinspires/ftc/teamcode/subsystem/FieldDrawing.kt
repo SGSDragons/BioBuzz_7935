@@ -1,47 +1,77 @@
 package org.firstinspires.ftc.teamcode.subsystem
 
-import com.bylazar.field.PanelsField
-import com.bylazar.telemetry.PanelsTelemetry
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.canvas.Canvas
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.pedropathing.math.Pose
-import kotlin.math.PI
+import org.firstinspires.ftc.teamcode.Telemetry
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
-class FieldDrawing {
-    val panelsField = PanelsField.field.apply {
-        setOffsets(PanelsField.presets.PEDRO_PATHING)
+object FieldDrawing {
+    private var prevBotPose: Pose = Pose.zero()
+    private var prevTurret: Double = 0.0
+    private var needsUpdate = true
+
+    fun updateBotPose(pose: Pose) {
+        var noticeableDiff = false
+        noticeableDiff = noticeableDiff or (abs(pose.x() - prevBotPose.x()) >= 1.0)
+        noticeableDiff = noticeableDiff or (abs(pose.y() - prevBotPose.y()) >= 1.0)
+        noticeableDiff = noticeableDiff or (abs(pose.heading() - prevBotPose.heading()) >= Math.toRadians(5.0))
+
+        if (noticeableDiff) {
+            prevBotPose = pose;
+            needsUpdate = true;
+        }
+    }
+    fun updateTurretRotations(rotations: Double) {
+        if (abs(rotations - prevTurret) > Math.toRadians(5.0)) {
+            needsUpdate = true
+            prevTurret = rotations
+        }
     }
 
-    fun drawRobot(robotPose: Pose, turretRevolutions: Double) {
-        val robotX: Double = robotPose.x()
-        val robotY: Double = robotPose.y()
-        val robotHeading: Double = robotPose.heading()
+    fun update(field: Canvas) {
+        if (!needsUpdate) {
+            return
+        }
 
-        PanelsTelemetry.telemetry.addData("robotX", robotX  )
-        PanelsTelemetry.telemetry.addData("robotY", robotY)
-        PanelsTelemetry.telemetry.addData("heading", robotHeading)
+        val width = 144.0
 
-        panelsField.moveCursor(robotX, robotY) // This says where to draw everything
+        field.drawImage("/images/field.png", 0.0, 0.0, width, width)
 
-        // Draw the way that the robot is pointing
-        panelsField.setStyle("#ed8796", "#ed8796", 2.0)
-        panelsField.line(
-            robotX + 8*cos(robotHeading),
-            robotY + 8*sin(robotHeading))
+        // Field Frame has (0,0) at the center of the field.
 
-        panelsField.moveCursor(robotX, robotY)
+        val robotX: Double = width/2.0 - prevBotPose.y()
+        val robotY: Double = prevBotPose.y() - width/2.0
+        val robotHeading: Double = prevBotPose.heading()
+
+        field.drawImage(
+            "/images/bot.png",
+            robotX, robotY,
+            18.0, 18.0,
+            -robotHeading,
+            9.0, 9.0,
+            false
+        )
 
         // Draw the way that the turret is pointing
-        panelsField.setStyle("#7dc4e4", "#7dc4e4", 1.0)
-        panelsField.line(
-            robotX + 8*cos(turretRevolutions * (2 * PI)),
-            robotY + 8*sin(turretRevolutions * (2 * PI)))
+        val worldAngle = Math.PI * 2 * prevTurret + robotHeading
+        val length = 13.0
 
-        panelsField.moveCursor(robotX, robotY)
+        field.setStrokeWidth(2)
 
-        // Draw the robot itself
-        panelsField.setStyle("#8087a2", "#494d64", 1.0)
-        panelsField.circle(4.0)
-        panelsField.update()
+        field.setStroke("#FF0000")
+        field.strokeLine(0.0, 0.0, -72.0, 0.0)
+        field.setStroke("#00FF00")
+        field.strokeLine(0.0, 0.0, 0.0, -72.0)
+        field.setStroke("#0000FF")
+        field.strokeLine(0.0, 0.0, 72.0, 0.0)
+        field.setStroke("#FF00FF")
+        field.strokeLine(0.0, 0.0, 0.0, 72.0)
+//            80.0, 80.0, 83.0, 83.0)
+//            robotX + 3, robotY+3
+//        )
     }
 }

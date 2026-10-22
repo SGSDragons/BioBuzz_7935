@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmode.tests;
 
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -14,8 +12,6 @@ public class ServoTestMode extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
-        TelemetryManager panels = PanelsTelemetry.INSTANCE.getTelemetry();
 
         ServoMotor motor = new ServoMotor(
                 hardwareMap.get(Servo.class, "360servo"),
@@ -39,11 +35,8 @@ public class ServoTestMode extends LinearOpMode {
                 motor.gotoPosition(targetPosition);
             }
 
-            panels.addData("opmode target", targetPosition);
 
             motor.update();
-            panels.update();
         }
-
     }
 }

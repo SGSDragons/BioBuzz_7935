@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmode.tests;
 
-import com.bylazar.telemetry.PanelsTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -31,8 +30,6 @@ public class TurretJoystick extends LinearOpMode {
             }
 
             turret.update();
-            PanelsTelemetry.INSTANCE.getTelemetry().update();
-
         }
     }
 }

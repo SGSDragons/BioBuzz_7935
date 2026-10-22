@@ -1,16 +1,16 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.Telemetry;
 
 /**
  * A class to control a Continuous Rotation (CR) Servo like it's a motor
  */
 public class ServoMotor {
-
-    TelemetryManager panels = PanelsTelemetry.INSTANCE.getTelemetry();
 
     private final Servo servo;
     private final AnalogInput servoPos;
@@ -49,7 +49,7 @@ public class ServoMotor {
         power = 0.5 + power/2.0;
         servo.setPosition(power);
 
-        panels.addData("servo/power", power);
+        Telemetry.INSTANCE.put("servo/power", power);
     }
 
     // Drives the servo in the direction of position.
@@ -63,7 +63,7 @@ public class ServoMotor {
             power += feedForward * (error < 0 ? -1.0 : 1.0);
             setPower(power);
         }
-        panels.addData("servo/target", position);
+        Telemetry.INSTANCE.put("servo/target", position);
     }
 
     // Must be called once every cycle to update position tracking
@@ -80,7 +80,7 @@ public class ServoMotor {
 
         // Send a signal to drive the servo to the desired position
         // Send telemetry information (power and position)
-        panels.addData("servo/position", absolutePosition);
+        Telemetry.INSTANCE.put("servo/position", absolutePosition);
     }
 
     private double currentRotation() {

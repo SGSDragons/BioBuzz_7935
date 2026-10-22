@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.Telemetry;
 
 /**
  * A turret driven by a ServoMotor through a gear. You give it a target angle
@@ -33,7 +33,7 @@ public class Turret {
     private boolean rehoming = true;
     private double target = 0.0;
 
-    @Configurable
+    @Config
     public static class TurretBias {
         public static double bias = 0.338;
     }
@@ -72,9 +72,6 @@ public class Turret {
         } else if (turretRotations - target > 0.5) {
             target += 1.0;
         }
-
-        TelemetryManager telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-        telemetry.addData("turret/absRotations", turretRotations);
     }
 
     public double getTurretRotations() {
@@ -96,11 +93,12 @@ public class Turret {
             setTargetAngle(-TurretBias.bias);
         }
 
-        TelemetryManager telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-        telemetry.addData("turret/target", target);
-        telemetry.addData("turret/rotations", getTurretRotations());
-        telemetry.addData("turret/rehoming", rehoming);
-        telemetry.addData("turret/magswitch", magSwitch.getState());
+        Telemetry.INSTANCE.put("turret/target", target);
+        Telemetry.INSTANCE.put("turret/rotations", getTurretRotations());
+        Telemetry.INSTANCE.put("turret/rehoming", rehoming);
+        Telemetry.INSTANCE.put("turret/magswitch", magSwitch.getState());
+
+        FieldDrawing.INSTANCE.updateTurretRotations(getTurretRotations());
     }
 
     private double getAbsolutePosition() {
