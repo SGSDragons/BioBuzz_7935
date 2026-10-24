@@ -5,7 +5,9 @@ import com.pedropathing.follower.ManualDrive
 import com.pedropathing.math.Pose
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
+import org.firstinspires.ftc.teamcode.subsystem.Targeter
 import org.firstinspires.ftc.teamcode.subsystem.Turret
 import java.lang.Math.toDegrees
 import kotlin.math.atan2
@@ -18,9 +20,6 @@ class TeleOpRed: OpMode() {
     private lateinit var targeter: Targeter
 
     private var rezeroed: Boolean = false
-
-    private val leftHive: Array<Double> = arrayOf(58.0, 90.0)
-    private val rightHive: Array<Double> = arrayOf(58.0, 52.0)
 
     override fun init() {
         follower = Constants.create(hardwareMap)

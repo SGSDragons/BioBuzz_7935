@@ -12,6 +12,7 @@ import kotlin.math.sin
 object FieldDrawing {
     private var prevBotPose: Pose = Pose.zero()
     private var prevTurret: Double = 0.0
+    private var prevTarget: Double = 0.0
     private var needsUpdate = true
 
     fun updateBotPose(pose: Pose) {
@@ -26,9 +27,16 @@ object FieldDrawing {
         }
     }
     fun updateTurretRotations(rotations: Double) {
-        if (abs(rotations - prevTurret) > Math.toRadians(5.0)) {
+        if (abs(rotations - prevTurret) > Math.toDegrees(5.0)) {
             needsUpdate = true
             prevTurret = rotations
+        }
+    }
+
+    fun updateTurretTarget(rotations: Double) {
+        if (abs(rotations - prevTarget) > Math.toDegrees(5.0)) {
+            needsUpdate = true
+            prevTarget = rotations
         }
     }
 
@@ -43,7 +51,7 @@ object FieldDrawing {
 
         // Field Frame has (0,0) at the center of the field.
 
-        val robotX: Double = width/2.0 - prevBotPose.y()
+        val robotX: Double = -width/2.0 + prevBotPose.x()
         val robotY: Double = prevBotPose.y() - width/2.0
         val robotHeading: Double = prevBotPose.heading()
 

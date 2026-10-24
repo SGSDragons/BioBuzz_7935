@@ -46,7 +46,7 @@ public class ServoMotor {
         }
 
         // Map [-1.0, 1.0] on [0.0, 1.0]
-        power = 0.5 + power/2.0;
+        power = (power + 1)/2.0;
         servo.setPosition(power);
 
         Telemetry.INSTANCE.put("servo/power", power);
