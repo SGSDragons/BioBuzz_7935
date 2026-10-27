@@ -24,10 +24,10 @@ object Constants {
     }
 
     var drivetrainConfig: MecanumConfig = MecanumConfig(Configuration { c: MecanumConfig? ->
-        c!!.frontLeftName.set("port2")
-        c.frontRightName.set("port1")
-        c.backLeftName.set("port3")
-        c.backRightName.set("port0")
+        c!!.frontLeftName.set("frontleft")
+        c.frontRightName.set("frontright")
+        c.backLeftName.set("backleft")
+        c.backRightName.set("backright")
         c.frontLeftDirection.set(DcMotorSimple.Direction.FORWARD)
         c.frontRightDirection.set(DcMotorSimple.Direction.REVERSE)
         c.backLeftDirection.set(DcMotorSimple.Direction.FORWARD)

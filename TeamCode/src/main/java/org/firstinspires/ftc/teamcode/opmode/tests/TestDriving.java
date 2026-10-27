@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.tests;
 
-import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.configurables.annotations.Sorter;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,7 +10,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp(name="driving test", group="Test")
-@Configurable
+@Config
 public class TestDriving extends LinearOpMode{
 
     DcMotorEx frontleft;
@@ -22,15 +19,8 @@ public class TestDriving extends LinearOpMode{
     DcMotorEx backright;
     IMU imu;
 
-    DcMotorEx intake;
-
     @Override
     public void runOpMode() {
-
-        TelemetryManager.TelemetryWrapper telemetry = PanelsTelemetry.INSTANCE.getFtcTelemetry();
-
-        intake = hardwareMap.get(DcMotorEx.class, "intake");
-        intake.setDirection(DcMotorEx.Direction.REVERSE);
 
         frontleft = hardwareMap.get(DcMotorEx.class, "frontleft");
         frontright = hardwareMap.get(DcMotorEx.class, "frontright");
@@ -49,13 +39,13 @@ public class TestDriving extends LinearOpMode{
 
         while (opModeIsActive()) {
 
-            double driveInput = -gamepad1.left_stick_y;
-            double strafeInput = gamepad1.left_stick_x;
+            double drive = -gamepad1.left_stick_y;
+            double strafe = gamepad1.left_stick_x;
             double turn = Math.pow(gamepad1.right_stick_x,3);
 
-            double currentheading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) * Math.PI / 180;
-            double drive = driveInput * Math.cos(-currentheading) + strafeInput * Math.sin(-currentheading);
-            double strafe = -driveInput * Math.sin(-currentheading) + strafeInput * Math.cos(-currentheading);
+//            double currentheading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) * Math.PI / 180;
+//            double drive = driveInput * Math.cos(-currentheading) + strafeInput * Math.sin(-currentheading);
+//            double strafe = -driveInput * Math.sin(-currentheading) + strafeInput * Math.cos(-currentheading);
 
             double frontLeftPower = drive + strafe + turn;
             double frontRightPower = drive - strafe - turn;
@@ -77,14 +67,6 @@ public class TestDriving extends LinearOpMode{
             frontright.setPower(frontRightPower);
             backleft.setPower(backLeftPower);
             backright.setPower(backRightPower);
-
-            if (gamepad1.right_bumper) {
-                intake.setPower(0.8);
-            } else if (gamepad1.left_bumper) {
-                intake.setPower(-0.8);
-            } else {
-                intake.setPower(0.0);
-            }
 
             if (gamepad1.dpad_up) {
                 imu.resetYaw();
