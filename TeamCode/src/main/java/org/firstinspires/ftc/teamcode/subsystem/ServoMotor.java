@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Telemetry;
@@ -13,29 +11,22 @@ import org.firstinspires.ftc.teamcode.Telemetry;
 public class ServoMotor {
 
     private final Servo servo;
-    private final AnalogInput servoPos;
-
-    // Fields to track and drive servo behavior.
-    private double lastPosition;
-    private double absolutePosition;
+    private final DcMotorEx servoPose;
+    private double bias = 0;
 
     private final double proportional = 0.5;
     private final double feedForward = 0.5;
 
-    public ServoMotor(Servo servo, AnalogInput servoPos) {
+    public ServoMotor(Servo servo, DcMotorEx servoPos) {
         this.servo = servo;
-        this.servoPos = servoPos;
-        absolutePosition = currentRotation();
-        lastPosition = absolutePosition;
+        this.servoPose = servoPos;
     }
 
     public double getPosition() {
-        return absolutePosition;
+        return (servoPose.getCurrentPosition() - bias) / 8192;
     }
 
-    public void rezero() {
-        absolutePosition = 0.0;
-    }
+    public void rezero() {bias = servoPose.getCurrentPosition();}
 
     public void setPower(double power) {
         if (power < -1.0) {
@@ -54,7 +45,7 @@ public class ServoMotor {
 
     // Drives the servo in the direction of position.
     public void gotoPosition(double position) {
-        double error = position - absolutePosition;
+        double error = position - servoPose.getCurrentPosition() - bias;
         if (Math.abs(error) < 0.03) {
             setPower(0.0);
         } else {
@@ -68,24 +59,8 @@ public class ServoMotor {
 
     // Must be called once every cycle to update position tracking
     public void update() {
-        double current = currentRotation();
-
-        absolutePosition = absolutePosition + (current - lastPosition);
-        if(current - lastPosition > 0.4) {
-            absolutePosition = absolutePosition - 1.0;
-        } else if (current - lastPosition < -0.4) {
-            absolutePosition = absolutePosition+ 1.0;
-        }
-        lastPosition = current;
-
         // Send a signal to drive the servo to the desired position
         // Send telemetry information (power and position)
-        Telemetry.INSTANCE.put("servo/position", absolutePosition);
-    }
-
-    private double currentRotation() {
-        // An increasing voltage implies clockwise rotation of the servo.
-        // Rotations should increase in counter-clockwise. Hence the negation.
-        return -servoPos.getVoltage() / servoPos.getMaxVoltage();
+        Telemetry.INSTANCE.put("servo/position", servoPose.getCurrentPosition() - bias);
     }
 }

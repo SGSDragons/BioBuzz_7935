@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystem.ServoMotor;
@@ -15,7 +15,7 @@ public class ServoTestMode extends LinearOpMode {
 
         ServoMotor motor = new ServoMotor(
                 hardwareMap.get(Servo.class, "360servo"),
-                hardwareMap.get(AnalogInput.class, "servopose")
+                hardwareMap.get(DcMotorEx.class, "encoder")
         );
 
         waitForStart();
