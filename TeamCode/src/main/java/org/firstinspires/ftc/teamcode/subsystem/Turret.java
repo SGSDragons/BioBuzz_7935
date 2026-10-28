@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Telemetry;
 public class Turret {
 
     private final String servoPwmName = "360servo";
-    private final String servoAnalogName = "servopose";
+    private final String encoderName = "turretencoder";
     private final String magswitchName = "turretmagnet";
 
     // Set the gear ratio using constants
@@ -41,7 +41,7 @@ public class Turret {
     public Turret(HardwareMap hardwareMap) {
         this.servo = new ServoMotor(
             hardwareMap.get(Servo.class, servoPwmName),
-            hardwareMap.get(AnalogInput.class, servoAnalogName));
+            hardwareMap.get(DcMotorEx.class, encoderName));
         servo.setPower(0.0);
 
         this.magSwitch = hardwareMap.get(DigitalChannel.class, magswitchName);

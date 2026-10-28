@@ -29,12 +29,17 @@ public class Targeter {
 
 
     // constructor: gets the Localizer from the Follower
-    public Targeter(Follower follower) {
+    public Targeter(Follower follower, boolean isRed) {
         this.localizer = follower.localizer;
 
-        //Placeholder positions. Replace with real field coordinates.
-        addTarget(new Target("A", 57,  88));
-        addTarget(new Target("B", 57, 57));
+        // Placeholder positions. Replace with real field coordinates.
+        if (isRed) {
+            addTarget(new Target("A", 58, 90));
+            addTarget(new Target("B", 58, 50));
+        } else {
+            addTarget(new Target("A", 84, 90));
+            addTarget(new Target("B", 84, 50));
+        }
     }
     public void addTarget(Target t) {
         targets.add(t);
