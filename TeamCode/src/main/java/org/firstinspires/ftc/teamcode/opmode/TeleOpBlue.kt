@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.subsystem.RobotController
 
-@TeleOp(name = "Red Team TeleOp 1")
+@TeleOp(name = "Blue Team TeleOp 1")
 class TeleOpBlue1: OpMode() {
 
     private lateinit var robotController: RobotController
@@ -25,7 +25,7 @@ class TeleOpBlue1: OpMode() {
     }
 }
 
-@TeleOp(name = "Red Team TeleOp 2")
+@TeleOp(name = "Blue Team TeleOp 2")
 class TeleOpBlue2: OpMode() {
 
     private lateinit var robotController: RobotController
