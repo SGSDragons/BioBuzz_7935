@@ -16,17 +16,19 @@ import org.firstinspires.ftc.teamcode.Telemetry;
 public class Turret {
 
     private final String servoPwmName = "360servo";
-    private final String encoderName = "turretencoder";
+    private final String encoderName = "feeder";
     private final String magswitchName = "turretmagnet";
 
     // Set the gear ratio using constants
-    private final int servoTeeth = 12;
-    private final int turretTeeth = 30;
+    private final double servoTeeth = 84;
+    private final double gear1Teeth = 28;
+    private final double gear2Teeth = 60;
+    private final double turretTeeth = 138;
 
     // Watch the negations:
     // With two gears, increasing turret rotations means decreasing servo.
     // With three, they will not be inverted.
-    private final double turretRevsPerServoRev = -(double)servoTeeth / turretTeeth;
+    private final double turretRevsPerServoRev = -(double) (servoTeeth / gear1Teeth) * (gear2Teeth / turretTeeth);
     private final DigitalChannel magSwitch;
 
     private final ServoMotor servo;
@@ -35,7 +37,7 @@ public class Turret {
 
     @Config
     public static class TurretBias {
-        public static double bias = 0.338;
+        public static double bias = 0;
     }
 
     public Turret(HardwareMap hardwareMap) {

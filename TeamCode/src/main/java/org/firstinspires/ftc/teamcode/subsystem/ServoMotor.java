@@ -14,7 +14,7 @@ public class ServoMotor {
     private final DcMotorEx servoPose;
     private double bias = 0;
 
-    private final double proportional = 0.5;
+    private final double proportional = -0.5;
     private final double feedForward = 0.5;
 
     public ServoMotor(Servo servo, DcMotorEx servoPos) {
@@ -45,7 +45,7 @@ public class ServoMotor {
 
     // Drives the servo in the direction of position.
     public void gotoPosition(double position) {
-        double error = position - servoPose.getCurrentPosition() - bias;
+        double error = position - getPosition();
         if (Math.abs(error) < 0.03) {
             setPower(0.0);
         } else {

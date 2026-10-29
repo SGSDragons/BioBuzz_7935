@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmode.tests;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -13,15 +12,13 @@ import org.firstinspires.ftc.teamcode.Telemetry;
 
 @TeleOp(name="robot test", group="Test")
 @Config
-public class RobotTest extends LinearOpMode{
-
-
-    public static double kp = 0.0;
+public class RobotTest extends LinearOpMode {
+    public static double kp = -50.0;
     public static double ki = 0.0;
     public static double kd = 0.0;
     public static double kf = 0.0;
-    public static double targetSpeed = 700;
-    public static double intakeSpeed = 0.5;
+    public static double targetSpeed = 700.0;
+    public static double intakeSpeed = 0.9;
     public static double feedSpeed = 0.9;
 
     DcMotorEx leftShooter;
@@ -41,12 +38,10 @@ public class RobotTest extends LinearOpMode{
         waitForStart();
 
         leftShooter = hardwareMap.get(DcMotorEx.class, "leftshooter");
-        leftShooter.setDirection(DcMotorEx.Direction.FORWARD);
-        rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftShooter.setDirection(DcMotorEx.Direction.REVERSE);
 
         rightShooter = hardwareMap.get(DcMotorEx.class, "rightshooter");
-        rightShooter.setDirection(DcMotorEx.Direction.REVERSE);
-        rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightShooter.setDirection(DcMotorEx.Direction.FORWARD);
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         intake.setDirection(DcMotorEx.Direction.FORWARD);
@@ -69,15 +64,17 @@ public class RobotTest extends LinearOpMode{
 
         waitForStart();
 
+        int count = 0;
+
         while (opModeIsActive()) {
 
-            double drive = -gamepad1.left_stick_y;
-            double strafe = gamepad1.left_stick_x;
+            double driveInput = -gamepad1.left_stick_y;
+            double strafeInput = gamepad1.left_stick_x;
             double turn = Math.pow(gamepad1.right_stick_x,3);
 
-//            double currentheading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) * Math.PI / 180;
-//            double drive = driveInput * Math.cos(-currentheading) + strafeInput * Math.sin(-currentheading);
-//            double strafe = -driveInput * Math.sin(-currentheading) + strafeInput * Math.cos(-currentheading);
+            double currentheading = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) * Math.PI / 180;
+            double drive = driveInput * Math.cos(currentheading) + strafeInput * Math.sin(currentheading);
+            double strafe = strafeInput * Math.cos(currentheading) - driveInput * Math.sin(currentheading);
 
             double frontLeftPower = drive + strafe + turn;
             double frontRightPower = drive - strafe - turn;
@@ -123,9 +120,20 @@ public class RobotTest extends LinearOpMode{
                 feeder.setPower(Math.pow(-gamepad2.right_stick_y,3));
             }
 
-            Telemetry.put("Target speed ", targetSpeed);
-            Telemetry.put("Current speed", (rightShooter.getVelocity()+leftShooter.getVelocity()/2));
+            if (gamepad2.dpad_right) {
+                kp++;
+            } if (gamepad2.dpad_left) {
+                kp--;
+            } if (gamepad2.dpad_up) {
+                targetSpeed++;
+            } if (gamepad2.dpad_down) {
+                targetSpeed--;
+            }
 
+            Telemetry.put("Target speed", targetSpeed);
+            Telemetry.put("kp", kp);
+            Telemetry.put("Current speed", (rightShooter.getVelocity()+leftShooter.getVelocity())/2);
+            Telemetry.put("Count", count++);
             Telemetry.send();
         }
     }
