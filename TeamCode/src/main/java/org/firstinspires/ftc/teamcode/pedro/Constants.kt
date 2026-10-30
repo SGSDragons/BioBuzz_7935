@@ -94,4 +94,14 @@ object Constants {
     fun newDrivetrain(hardwaremap: HardwareMap) = Mecanum(hardwaremap, drivetrainConfig)
     fun newLocalizer(hardwaremap: HardwareMap) = PlottingLocalizer(PinpointLocalizer(hardwaremap, localizerConfig))
     fun newForesight() = Foresight(foresightConfig)
+
+    @JvmStatic
+    fun create(h: HardwareMap): Follower {
+        return Follower(
+            PinpointLocalizer(h, localizerConfig),
+            Mecanum(h, drivetrainConfig),
+            Foresight(foresightConfig)
+        )
+        //return null;
+    }
 }
