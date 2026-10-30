@@ -1,19 +1,19 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Pose;
-//import com.pedrooathing.localization.Localizatizer;
-//import com.pderopathing.locaization.Pose;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Config
 public class Targeter {
-     // named spot on feild
+     // named spot on field
      public static class Target {
         public final String name;
-        public final double x, y; // feild inches
+        public final double x, y; // field inches
 
         public Target(String name, double x, double y) {
             this.name = name;
@@ -22,6 +22,7 @@ public class Targeter {
         }
      }
 
+     public static double velocity = 500.0;
 
      private final Localizer localizer;
      private final List<Target> targets = new ArrayList<>();
@@ -90,7 +91,9 @@ public class Targeter {
 
     // flywheel velocity based on distance to the current target. /
     public double getFlywheelSpeed() {
-        return flywheelBase + flywheelPerInch * distanceToTarget();
+        // TODO: Compute this based on position
+        return velocity;
+//        return flywheelBase + flywheelPerInch * distanceToTarget();
 
     }
 

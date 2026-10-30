@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmode
 import com.pedropathing.math.Pose
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.subsystem.RobotController
 
 @TeleOp(name = "Blue Team TeleOp 1")
@@ -21,7 +20,6 @@ class TeleOpBlue1: OpMode() {
 
     override fun loop() {
         robotController.update()
-        Telemetry.send()
     }
 }
 
@@ -40,6 +38,5 @@ class TeleOpBlue2: OpMode() {
 
     override fun loop() {
         robotController.update()
-        Telemetry.send()
     }
 }

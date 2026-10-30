@@ -14,7 +14,7 @@ class TestTeleOp: OpMode() {
     private lateinit var follower: Follower
 
     override fun init() {
-        follower = Constants.create(hardwareMap)
+        follower = Constants.getOrCreate(hardwareMap)
         follower.localizer.setPose(Pose(24.0, 47.0, Math.toRadians(-90.0)))
     }
 

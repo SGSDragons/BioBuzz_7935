@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmode.tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp(name = "Angle Test", group = "Test")
+@Disabled
 public class AngleTest extends LinearOpMode {
 
 

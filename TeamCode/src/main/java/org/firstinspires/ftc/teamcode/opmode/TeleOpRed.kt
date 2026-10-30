@@ -3,9 +3,7 @@ package org.firstinspires.ftc.teamcode.opmode
 import com.pedropathing.math.Pose
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.subsystem.RobotController
-import java.lang.Math.toRadians
 
 
 @TeleOp(name = "Red Team TeleOp 1")
@@ -23,7 +21,6 @@ class TeleOpRed1: OpMode() {
 
     override fun loop() {
         robotController.update()
-        Telemetry.send()
     }
 }
 
@@ -42,6 +39,5 @@ class TeleOpRed2: OpMode() {
 
     override fun loop() {
         robotController.update()
-        Telemetry.send()
     }
 }
