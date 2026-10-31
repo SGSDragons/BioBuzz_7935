@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.subsystem.Automator
 
 @Autonomous(name = "Red Autonomous")
-class AutoRed: OpMode() {
+class AutoRed1: OpMode() {
     private lateinit var automator: Automator
 
     //region PedroPathing Values
