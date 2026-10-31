@@ -4,7 +4,6 @@ import com.pedropathing.follower.Follower
 import com.pedropathing.ivy.Command
 import com.pedropathing.ivy.Scheduler
 import com.pedropathing.ivy.Scheduler.schedule
-import com.pedropathing.ivy.commands.Commands
 import com.pedropathing.ivy.commands.Commands.waitMs
 import com.pedropathing.ivy.groups.Groups.race
 import com.pedropathing.ivy.groups.Groups.sequential
@@ -14,11 +13,16 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.pedro.Constants
+import java.util.function.BooleanSupplier
+
+fun Command.forTime(ms: Int): Command = race(this, waitMs(ms.toDouble()))
 
 class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolean) {
     init {
         Scheduler.reset()
     }
+
+    //region Class Definitions
     val follower: Follower = Constants.create(hardwareMap).also { it.setPose(start) }
     val targeter: Targeter = Targeter(follower, isRed)
     val flywheel: Flywheel = Flywheel(hardwareMap)
@@ -28,38 +32,43 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     }
     val intakeMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "intake")
 
-    val windupTurret: Command = Command.build()
-        .setExecute { flywheel.run(targeter.flywheelSpeed) }
-        .setDone { false }
+    //endregion
 
-    val shootTurret: Command = Command.build()
-        .setExecute {
+    //region Commands
+    val windupTurret: Command = newCommand(
+        { flywheel.run(targeter.flywheelSpeed) },
+        {  },
+        { false }
+    )
+
+    val shootTurret: Command = newCommand(
+        {
             flywheel.run(targeter.flywheelSpeed)
             intakeMotor.power = 0.9
             feederMotor.power = 0.7
-        }
-        .setDone { false }
-        .setEnd {
+        },
+        {
             flywheel.stop()
             intakeMotor.power = 0.0
             feederMotor.power = 0.0
-        }
-
+        },
+        { false }
+    )
     val rehome: Command = Command.build()
         .setExecute { turret.rehome() }
         .setDone { !turret.isRehoming }
 
-    private val runIntake: Command = Command.build()
+    val runIntake: Command = Command.build()
         .setExecute { intakeMotor.power = 1.0 }
         .setDone { false }
         .setEnd { intakeMotor.power = 0.0 }
 
-    val intake: Command = race(runIntake, waitMs(10000.0))
+    val shoot: Command = windupTurret.forTime(2000).then(
+        shootTurret.forTime(3000))
+    //endregion
 
-    val shoot: Command = race(windupTurret, waitMs(2000.0)).then(
-        race(shootTurret, waitMs(3000.0)))
-
-    fun runSchedule(schedule: Command) {
+    //region Helper Functions
+    fun followSchedule(schedule: Command) {
         schedule(schedule)
     }
 
@@ -68,10 +77,16 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     }
 
     fun newSchedule(vararg commands: Command): Command {
-        return sequential(*commands)
+        return sequential(rehome, *commands)
     }
 
-    fun Command.forMs(ms: Double) = race(this, waitMs(ms))
+    fun newCommand(onStart: Runnable, onFinish: Runnable, endCondition: BooleanSupplier): Command {
+        return Command.build()
+            .setExecute { onStart.run() }
+            .setDone { endCondition.asBoolean }
+            .setEnd { onFinish.run() }
+    }
+    //endregion
 
     fun update() {
         follower.update()

@@ -2,9 +2,6 @@ package org.firstinspires.ftc.teamcode.opmode.tests
 
 import com.pedropathing.api.Paths
 import com.pedropathing.api.PoseFactory
-import com.pedropathing.ivy.Command
-import com.pedropathing.ivy.groups.Groups.sequential
-import com.pedropathing.ivy.pedro.PedroCommands.follow
 import com.pedropathing.paths.Path
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
@@ -22,20 +19,17 @@ class AutoBlueTest: OpMode() {
 
     fun path1(): Path = Paths.curve(start, path1Control1, path1).linear(start, path1)
 
-    private fun autoRoutine(): Command {
-        return sequential(
-            automator.rehome,
-            automator.shoot,
-            follow(automator.follower, path1())
-        )
-    }
+    val schedule = automator.newSchedule(
+        automator.shoot,
+        automator.goto(path1())
+    )
 
     override fun init() {
         automator = Automator(hardwareMap, start, false)
     }
 
     override fun start() {
-        automator.start(autoRoutine())
+        automator.followSchedule(schedule)
     }
 
     override fun loop() {
