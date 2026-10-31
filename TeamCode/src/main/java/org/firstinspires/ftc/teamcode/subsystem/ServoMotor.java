@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -8,14 +9,15 @@ import org.firstinspires.ftc.teamcode.Telemetry;
 /**
  * A class to control a Continuous Rotation (CR) Servo like it's a motor
  */
+@Config
 public class ServoMotor {
 
     private final Servo servo;
     private final DcMotorEx servoPose;
     private double bias = 0;
 
-    private final double proportional = -0.5;
-    private final double feedForward = 0.5;
+    public static double proportional = 0.0;
+    public static double feedForward = 0.0;
 
     public ServoMotor(Servo servo, DcMotorEx servoPos) {
         this.servo = servo;
@@ -40,7 +42,7 @@ public class ServoMotor {
         power = (power + 1)/2.0;
         servo.setPosition(power);
 
-        Telemetry.INSTANCE.put("servo/power", power);
+        Telemetry.put("servo/power", power);
     }
 
     // Drives the servo in the direction of position.
@@ -54,13 +56,13 @@ public class ServoMotor {
             power += feedForward * (error < 0 ? -1.0 : 1.0);
             setPower(power);
         }
-        Telemetry.INSTANCE.put("servo/target", position);
+        Telemetry.put("servo/target", position);
     }
 
     // Must be called once every cycle to update position tracking
     public void update() {
         // Send a signal to drive the servo to the desired position
         // Send telemetry information (power and position)
-        Telemetry.INSTANCE.put("servo/position", servoPose.getCurrentPosition() - bias);
+        Telemetry.put("servo/position", servoPose.getCurrentPosition() - bias);
     }
 }

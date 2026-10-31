@@ -39,6 +39,7 @@ public class RobotTest extends LinearOpMode {
 
         leftShooter = hardwareMap.get(DcMotorEx.class, "leftshooter");
         leftShooter.setDirection(DcMotorEx.Direction.REVERSE);
+        rightShooter.setDirection(DcMotorEx.Direction.FORWARD);
 
         rightShooter = hardwareMap.get(DcMotorEx.class, "rightshooter");
         rightShooter.setDirection(DcMotorEx.Direction.FORWARD);

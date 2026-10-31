@@ -22,7 +22,7 @@ public class Targeter {
         }
      }
 
-     public static double velocity = 500.0;
+     public static double velocity = -950.0;
 
      private final Localizer localizer;
      private final List<Target> targets = new ArrayList<>();
