@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.pedro.Constants
-import java.util.function.BooleanSupplier
 
 fun Command.forTime(ms: Int): Command = race(this, waitMs(ms.toDouble()))
 fun Command.run() = schedule(this)
@@ -78,12 +77,17 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         return sequential(rehome, *commands)
     }
 
-    fun newCommand(start: Runnable = {  }, loop: Runnable = {  }, end: Runnable = {  }, endCondition: BooleanSupplier = { false }): Command {
+    fun newCommand(
+        start: () -> Unit = {},
+        loop: () -> Unit = {},
+        end: () -> Unit = {},
+        endCondition: () -> Boolean = { false }
+    ): Command {
         return Command.build()
-            .setStart { start.run() }
-            .setExecute { loop.run() }
-            .setDone { endCondition.asBoolean }
-            .setEnd { end.run() }
+            .setStart { start() }
+            .setExecute { loop() }
+            .setDone { endCondition() }
+            .setEnd { end() }
     }
     //endregion
 
