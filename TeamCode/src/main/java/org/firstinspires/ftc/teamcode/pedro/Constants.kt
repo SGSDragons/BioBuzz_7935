@@ -19,11 +19,11 @@ object Constants {
 
     private var follower: Follower? = null
     fun getOrCreate(h: HardwareMap): Follower {
-        return follower ?: recreate(h)
+        return follower ?: create(h)
     }
 
     @JvmStatic
-    fun recreate(h: HardwareMap): Follower {
+    fun create(h: HardwareMap): Follower {
         return Follower(newLocalizer(h), newDrivetrain(h), newForesight()).also {
             follower = it
         }
@@ -94,14 +94,4 @@ object Constants {
     fun newDrivetrain(hardwaremap: HardwareMap) = Mecanum(hardwaremap, drivetrainConfig)
     fun newLocalizer(hardwaremap: HardwareMap) = PlottingLocalizer(PinpointLocalizer(hardwaremap, localizerConfig))
     fun newForesight() = Foresight(foresightConfig)
-
-    @JvmStatic
-    fun create(h: HardwareMap): Follower {
-        return Follower(
-            PinpointLocalizer(h, localizerConfig),
-            Mecanum(h, drivetrainConfig),
-            Foresight(foresightConfig)
-        )
-        //return null;
-    }
 }

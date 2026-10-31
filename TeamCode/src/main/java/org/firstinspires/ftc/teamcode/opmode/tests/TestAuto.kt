@@ -68,7 +68,7 @@ class TestAuto: OpMode() {
         // Init is the first button you press BEFORE the start button
         Scheduler.reset()
 
-        follower = Constants.recreate(hardwareMap)
+        follower = Constants.create(hardwareMap)
         follower.setPose(start)
         follower.update()
     }

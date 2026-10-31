@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystem
 
-import com.pedropathing.drivetrain.DrivePowers
 import com.pedropathing.follower.Follower
 import com.pedropathing.follower.ManualDrive
 import com.pedropathing.math.Pose
@@ -20,8 +19,8 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
     val feederPower = 1.0
 
     // Reuse an existing follower, since it could be coming from Autonomous
-    private val follower: Follower = Constants.recreate(hardwareMap)
-    private val turret: Turret = Turret(hardwareMap)
+    private val follower: Follower = Constants.create(hardwareMap)
+    private val turret: Turret = Turret(hardwareMap).also { it.rehome() }
     private val targeter: Targeter = Targeter(follower, isRed)
     private val flywheel = Flywheel(hardwareMap)
 

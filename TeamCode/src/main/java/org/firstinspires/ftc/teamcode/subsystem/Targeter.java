@@ -35,8 +35,8 @@ public class Targeter {
 
         // Placeholder positions. Replace with real field coordinates.
         if (isRed) {
-            addTarget(new Target("A", 58, 90));
-            addTarget(new Target("B", 58, 50));
+            addTarget(new Target("A", 58, 50));
+            addTarget(new Target("B", 58, 90));
         } else {
             addTarget(new Target("A", 84, 90));
             addTarget(new Target("B", 84, 50));
