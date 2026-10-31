@@ -32,9 +32,9 @@ class AutoRed: OpMode() {
     private lateinit var feederMotor: DcMotor
     private lateinit var intakeMotor: DcMotor
 
-    private val start = poseFactory.of(82.6144, 135.7492, 270.0)
-    private val path1 = poseFactory.of(130.5204, 42.7423, 270.0)
-    private val path1Control1 = poseFactory.of(121.8211, 86.763, 0.0)
+    private val start = poseFactory.of(58.8389, 7.2903, 90.0)
+    private val path1 = poseFactory.of(12.4909, 98.3104, 90.0)
+    private val path1Control1 = poseFactory.of(18.6174, 29.3906, 0.0)
 
     fun path1(): Path = Paths.curve(start, path1Control1, path1).linear(start, path1)
 

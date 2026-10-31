@@ -24,6 +24,7 @@ class AutoBlueTest: OpMode() {
 
     private fun autoRoutine(): Command {
         return sequential(
+            automator.rehome,
             automator.shoot,
             follow(automator.follower, path1())
         )

@@ -4,8 +4,11 @@ import com.pedropathing.follower.Follower
 import com.pedropathing.ivy.Command
 import com.pedropathing.ivy.Scheduler
 import com.pedropathing.ivy.Scheduler.schedule
+import com.pedropathing.ivy.commands.Commands
 import com.pedropathing.ivy.commands.Commands.waitMs
 import com.pedropathing.ivy.groups.Groups.race
+import com.pedropathing.ivy.groups.Groups.sequential
+import com.pedropathing.ivy.pedro.PedroCommands.follow
 import com.pedropathing.math.Pose
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
@@ -25,11 +28,11 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     }
     val intakeMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "intake")
 
-    private val windupTurret: Command = Command.build()
+    val windupTurret: Command = Command.build()
         .setExecute { flywheel.run(targeter.flywheelSpeed) }
         .setDone { false }
 
-    private val shootTurret: Command = Command.build()
+    val shootTurret: Command = Command.build()
         .setExecute {
             flywheel.run(targeter.flywheelSpeed)
             intakeMotor.power = 0.9
@@ -42,17 +45,33 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
             feederMotor.power = 0.0
         }
 
-    private val rehome: Command = Command.build()
+    val rehome: Command = Command.build()
         .setExecute { turret.rehome() }
         .setDone { !turret.isRehoming }
 
-    val shoot: Command = rehome.then(
-        race(windupTurret, waitMs(2000.0)).then(
-        race(shootTurret, waitMs(3000.0))))
+    private val runIntake: Command = Command.build()
+        .setExecute { intakeMotor.power = 1.0 }
+        .setDone { false }
+        .setEnd { intakeMotor.power = 0.0 }
 
-    fun start(autoRoutine: Command) {
-        schedule(autoRoutine)
+    val intake: Command = race(runIntake, waitMs(10000.0))
+
+    val shoot: Command = race(windupTurret, waitMs(2000.0)).then(
+        race(shootTurret, waitMs(3000.0)))
+
+    fun runSchedule(schedule: Command) {
+        schedule(schedule)
     }
+
+    fun goto(path: com.pedropathing.paths.Path): Command {
+        return follow(follower, path)
+    }
+
+    fun newSchedule(vararg commands: Command): Command {
+        return sequential(*commands)
+    }
+
+    fun Command.forMs(ms: Double) = race(this, waitMs(ms))
 
     fun update() {
         follower.update()
