@@ -10,9 +10,9 @@ import org.firstinspires.ftc.teamcode.Telemetry;
 @Config
 public class Flywheel {
     public static double kF = -20.0;
-    public static double kP = -70.0;
+    public static double kP = -250.0;
     public static double kI;
-    public static double kD;
+    public static double kD = -50;
 
     public static boolean LEFT_FORWARD = true;
     public static boolean RIGHT_FORWARD = false;

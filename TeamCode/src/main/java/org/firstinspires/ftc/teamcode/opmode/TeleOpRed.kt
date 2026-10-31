@@ -16,25 +16,7 @@ class TeleOpRed1: OpMode() {
     }
 
     override fun start() {
-        robotController.setPose(Pose(70.0, 70.0, 0.0))
-    }
-
-    override fun loop() {
-        robotController.update()
-    }
-}
-
-@TeleOp(name = "Red Team TeleOp 2")
-class TeleOpRed2: OpMode() {
-
-    private lateinit var robotController: RobotController
-
-    override fun init() {
-        robotController = RobotController(gamepad1, gamepad2, hardwareMap, true)
-    }
-
-    override fun start() {
-        robotController.setPose(Pose(10.0, 10.0, 0.0))
+        robotController.setPose(9.6657, 92.7387, 90.0)
     }
 
     override fun loop() {

@@ -69,15 +69,6 @@ object FieldDrawing {
         val length = 13.0
 
         field.setStrokeWidth(2)
-
-        field.setStroke("#FF0000")
-        field.strokeLine(0.0, 0.0, -72.0, 0.0)
-        field.setStroke("#00FF00")
-        field.strokeLine(0.0, 0.0, 0.0, -72.0)
-        field.setStroke("#0000FF")
-        field.strokeLine(0.0, 0.0, 72.0, 0.0)
-        field.setStroke("#FF00FF")
-        field.strokeLine(0.0, 0.0, 0.0, 72.0)
 //            80.0, 80.0, 83.0, 83.0)
 //            robotX + 3, robotY+3
 //        )

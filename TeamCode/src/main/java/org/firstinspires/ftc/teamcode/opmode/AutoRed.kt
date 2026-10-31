@@ -32,15 +32,16 @@ class AutoRed: OpMode() {
     private lateinit var feederMotor: DcMotor
     private lateinit var intakeMotor: DcMotor
 
-    private val start = poseFactory.of(58.4971, 6.474, 90.0);
-    private val path1 = poseFactory.of(9.6657, 92.7387, 90.0)
-    private val path1Control1 = poseFactory.of(18.8284, 27.1184, 0.0)
+    private val start = poseFactory.of(82.6144, 135.7492, 270.0)
+    private val path1 = poseFactory.of(130.5204, 42.7423, 270.0)
+    private val path1Control1 = poseFactory.of(121.8211, 86.763, 0.0)
 
-    fun path1(): Path = Paths.curve(start, path1Control1, path1).constant(path1)
+    fun path1(): Path = Paths.curve(start, path1Control1, path1).linear(start, path1)
 
-    val windup = Command.build()
+    val windup: Command = Command.build()
         .setExecute { flywheel.run(targeter.flywheelSpeed) }
         .setDone { false }
+
     val shoot: Command = Command.build()
         .setExecute {
             flywheel.run(targeter.flywheelSpeed)
@@ -54,7 +55,7 @@ class AutoRed: OpMode() {
             feederMotor.power = 0.0
         }
 
-    val rehome = Command.build()
+    val rehome: Command = Command.build()
         .setExecute { turret.rehome() }
         .setDone { !turret.isRehoming }
 

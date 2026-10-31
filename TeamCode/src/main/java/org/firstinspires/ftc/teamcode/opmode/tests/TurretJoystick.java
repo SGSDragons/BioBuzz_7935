@@ -7,13 +7,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystem.Turret;
 
 @TeleOp(name = "Turret Joystick", group = "Test")
-
 public class TurretJoystick extends LinearOpMode {
     static final double STICK_ENGAGE = 0.7;
 
     @Override
     public void runOpMode() {
         Turret turret = new Turret(hardwareMap);
+        turret.rehome();
 
         waitForStart();
 

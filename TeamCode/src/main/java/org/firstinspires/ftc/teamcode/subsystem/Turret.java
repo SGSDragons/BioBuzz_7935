@@ -20,7 +20,7 @@ public class Turret {
     private final String magswitchName = "turretmagnet";
 
     // Set the gear ratio using constants
-    private final double servoTeeth = 84;
+    private final double servoTeeth = 86;
     private final double gear1Teeth = 28;
     private final double gear2Teeth = 60;
     private final double turretTeeth = 138;
@@ -28,7 +28,7 @@ public class Turret {
     // Watch the negations:
     // With two gears, increasing turret rotations means decreasing servo.
     // With three, they will not be inverted.
-    private final double turretRevsPerServoRev = -(double) (servoTeeth / gear1Teeth) * (gear2Teeth / turretTeeth);
+    private final double turretRevsPerServoRev = (servoTeeth / gear1Teeth) * (gear2Teeth / turretTeeth);
     private final DigitalChannel magSwitch;
 
     private final ServoMotor servo;

@@ -13,6 +13,8 @@ import com.pedropathing.ivy.pedro.PedroCommands.follow
 import com.pedropathing.paths.Path
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
 import org.firstinspires.ftc.teamcode.subsystem.Flywheel
@@ -27,23 +29,41 @@ class AutoBlue: OpMode() {
     private lateinit var targeter: Targeter
     private lateinit var turret: Turret
 
-    private val start = poseFactory.of(81.6642, 133.6853, 270.0)
-    private val path1 = poseFactory.of(129.9407, 49.4564, 270.0)
-    private val path1Control1 = poseFactory.of(125.6341, 118.1933, 0.0)
+    private lateinit var feederMotor: DcMotor
+    private lateinit var intakeMotor: DcMotor
+
+    private val start = poseFactory.of(82.6144, 133.7975, 270.0)
+    private val path1 = poseFactory.of(125.7298, 40.7906, 270.0)
+    private val path1Control1 = poseFactory.of(121.8211, 86.763, 0.0)
 
     fun path1(): Path = Paths.curve(start, path1Control1, path1).linear(start, path1)
 
-    val shoot: Command = Command.build()
+    val windup: Command = Command.build()
         .setExecute { flywheel.run(targeter.flywheelSpeed) }
         .setDone { false }
-        .setEnd { flywheel.run(targeter.flywheelSpeed) }
+
+    val shoot: Command = Command.build()
+        .setExecute {
+            flywheel.run(targeter.flywheelSpeed)
+            intakeMotor.power = 0.9
+            feederMotor.power = 0.7
+        }
+        .setDone { false }
+        .setEnd {
+            flywheel.stop()
+            intakeMotor.power = 0.0
+            feederMotor.power = 0.0
+        }
+
+    val rehome: Command = Command.build()
+        .setExecute { turret.rehome() }
+        .setDone { !turret.isRehoming }
 
     private fun autoRoutine(): Command {
         return sequential(
-            race(
-                shoot,
-                waitMs(5000.0)
-            ),
+            rehome,
+            race(windup, waitMs(2000.0)),
+            race(shoot, waitMs(3000.0)),
             follow(follower, path1())
         )
     }
@@ -57,6 +77,11 @@ class AutoBlue: OpMode() {
         flywheel = Flywheel(hardwareMap)
         turret = Turret(hardwareMap)
         turret.rehome()
+
+        feederMotor = hardwareMap.get(DcMotor::class.java, "feeder").also {
+            it.direction = DcMotorSimple.Direction.REVERSE
+        }
+        intakeMotor = hardwareMap.get(DcMotor::class.java, "intake")
     }
 
     override fun start() {

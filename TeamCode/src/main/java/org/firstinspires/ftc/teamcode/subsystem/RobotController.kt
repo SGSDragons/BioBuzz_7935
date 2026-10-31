@@ -26,8 +26,8 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
 
     private var autoAim: Boolean = true
 
-    fun setPose(pose: Pose) {
-        follower.localizer.setPose(pose)
+    fun setPose(x: Double, y: Double, headingDegrees: Double) {
+        follower.localizer.setPose(Pose(x, y, Math.toRadians(headingDegrees)))
     }
 
     fun update() {
@@ -56,7 +56,7 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
         if (autoAim) {
             turret.setTargetAngle(targeter.getAimValue() * 360.0)
         } else {
-            turret.setTargetAngle(turret.turretRotations + operatorGamepad.left_trigger / 90 - operatorGamepad.right_trigger / 90)
+            turret.setTargetAngle(turret.turretRotations + operatorGamepad.left_trigger - operatorGamepad.right_trigger)
         }
 
         if (operatorGamepad.right_bumper) {
