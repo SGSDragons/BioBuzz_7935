@@ -13,7 +13,7 @@ public class Targeter {
      // named spot on field
      public static class Target {
         public final String name;
-        public final double x, y; // field inches
+        public final double x, y; // Field inches
 
         public Target(String name, double x, double y) {
             this.name = name;
@@ -29,7 +29,7 @@ public class Targeter {
      private int currentIndex = 0;
 
 
-    // constructor: gets the Localizer from the Follower
+    // Constructor: gets the Localizer from the Follower
     public Targeter(Follower follower, boolean isRed) {
         this.localizer = follower.localizer;
 
@@ -66,7 +66,7 @@ public class Targeter {
     private double turretMinAngle = 0;
     private double turretMaxAngle = 2*Math.PI;
 
-    //Flywheel speed = base + perInch * distance. TUNE ON FEILD.
+    // Flywheel speed = base + perInch * distance. TUNE ON FEILD.
     private double flywheelBase = 1000; // base speed in ticks per second
     private double flywheelPerInch =8;
 
@@ -89,11 +89,11 @@ public class Targeter {
         return Math.max(0, Math.min(1, value));
     }
 
-    // flywheel velocity based on distance to the current target. /
+    // Flywheel velocity based on distance to the current target. /
     public double getFlywheelSpeed() {
         // TODO: Compute this based on position
         return velocity;
-//        return flywheelBase + flywheelPerInch * distanceToTarget();
+//        Return flywheelBase + flywheelPerInch * distanceToTarget();
 
     }
 
