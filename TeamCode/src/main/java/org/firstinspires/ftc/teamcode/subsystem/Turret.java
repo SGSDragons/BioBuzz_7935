@@ -53,6 +53,9 @@ public class Turret {
     public void rehome() {
         this.rehoming = true;
     }
+    public boolean isRehoming() {
+        return this.rehoming;
+    }
 
     /** Point the turret at this angle (any value; it gets wrapped to 0-360). */
     public void setTargetAngle(double degrees) {

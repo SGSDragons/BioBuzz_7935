@@ -43,19 +43,19 @@ object Constants {
     var localizerConfig: PinpointConfig = PinpointConfig { c: PinpointConfig? ->
         c!!.name.set("odo")
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
-        c.xPodOffset.set(-7.0)
-        c.yPodOffset.set(6.5)
-        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED)
-        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED)
+        c.xPodOffset.set(-3.1287101685531495)
+        c.yPodOffset.set(-2.709128011868695)
+        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD)
+        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD)
         c.globalDistanceUnit.set(DistanceUnit.INCH)
         c.offsetUnits.set(DistanceUnit.INCH)
     }
 
-    var foresightConfig: ForesightConfig = ForesightConfig { c: ForesightConfig? ->
-        val primaryTranslationalForward = Controller.proportional(0.2568972329196748)
-        val secondaryTranslationalForward = Controller.proportional(0.09491666314333237)
-        val primaryTranslationalLateral = Controller.proportional(0.33141797990809874)
-        val secondaryTranslationalLateral = Controller.proportional(0.1224500879245225)
+    val foresightConfig = ForesightConfig{ c: ForesightConfig? ->
+            val primaryTranslationalForward = Controller.proportional(0.5250084248240626)
+            val secondaryTranslationalForward = Controller.proportional(0.19397658448901356)
+            val primaryTranslationalLateral = Controller.proportional(1.1223768223042243)
+            val secondaryTranslationalLateral = Controller.proportional(0.4146882453803767)
 
         c!!.forwardTranslational.set(
             Controller.piecewise(secondaryTranslationalForward)
