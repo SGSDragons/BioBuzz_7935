@@ -21,8 +21,8 @@ import org.firstinspires.ftc.teamcode.subsystem.Flywheel
 import org.firstinspires.ftc.teamcode.subsystem.Targeter
 import org.firstinspires.ftc.teamcode.subsystem.Turret
 
-@Autonomous(name = "Red Autonomous")
-class AutoRed: OpMode() {
+@Autonomous(name = "Red Autonomous 1")
+class AutoRed1: OpMode() {
     private val poseFactory = PoseFactory.degrees()
     private lateinit var follower: Follower
     private lateinit var flywheel: Flywheel
