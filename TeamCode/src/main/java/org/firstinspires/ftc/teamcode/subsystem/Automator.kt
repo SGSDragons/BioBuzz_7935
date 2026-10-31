@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants
 import java.util.function.BooleanSupplier
 
 fun Command.forTime(ms: Int): Command = race(this, waitMs(ms.toDouble()))
+fun Command.run() = schedule(this)
 
 class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolean) {
     init {
@@ -36,55 +37,53 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
 
     //region Commands
     val windupTurret: Command = newCommand(
-        { flywheel.run(targeter.flywheelSpeed) },
-        {  },
-        { false }
+        start = { flywheel.run(targeter.flywheelSpeed) }
     )
 
     val shootTurret: Command = newCommand(
-        {
+        start = {
             flywheel.run(targeter.flywheelSpeed)
             intakeMotor.power = 0.9
             feederMotor.power = 0.7
         },
-        {
+        end = {
             flywheel.stop()
             intakeMotor.power = 0.0
             feederMotor.power = 0.0
         },
-        { false }
+        endCondition = { false }
     )
-    val rehome: Command = Command.build()
-        .setExecute { turret.rehome() }
-        .setDone { !turret.isRehoming }
+    val rehome: Command = newCommand(
+        start = { turret.rehome() },
+        endCondition = { !turret.isRehoming }
+    )
 
-    val runIntake: Command = Command.build()
-        .setExecute { intakeMotor.power = 1.0 }
-        .setDone { false }
-        .setEnd { intakeMotor.power = 0.0 }
+    val runIntake: Command = newCommand(
+        start = { intakeMotor.power = 1.0 },
+        end = { intakeMotor.power = 0.0 }
+    )
 
-    val shoot: Command = windupTurret.forTime(2000).then(
-        shootTurret.forTime(3000))
+    val shoot: Command = scheduledCommand(
+        windupTurret.forTime(2000),
+        shootTurret.forTime(3000)
+    )
     //endregion
 
     //region Helper Functions
-    fun followSchedule(schedule: Command) {
-        schedule(schedule)
-    }
-
     fun goto(path: com.pedropathing.paths.Path): Command {
         return follow(follower, path)
     }
 
-    fun newSchedule(vararg commands: Command): Command {
+    fun scheduledCommand(vararg commands: Command): Command {
         return sequential(rehome, *commands)
     }
 
-    fun newCommand(onStart: Runnable, onFinish: Runnable, endCondition: BooleanSupplier): Command {
+    fun newCommand(start: Runnable = {  }, loop: Runnable = {  }, end: Runnable = {  }, endCondition: BooleanSupplier = { false }): Command {
         return Command.build()
-            .setExecute { onStart.run() }
+            .setStart { start.run() }
+            .setExecute { loop.run() }
             .setDone { endCondition.asBoolean }
-            .setEnd { onFinish.run() }
+            .setEnd { end.run() }
     }
     //endregion
 

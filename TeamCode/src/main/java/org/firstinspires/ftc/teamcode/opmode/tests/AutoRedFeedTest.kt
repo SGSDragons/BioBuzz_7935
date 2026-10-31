@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.subsystem.Automator
 import org.firstinspires.ftc.teamcode.subsystem.forTime
+import org.firstinspires.ftc.teamcode.subsystem.run
 
 @Autonomous(name = "Red Autonomous Autofeed Test", group = "Test")
 class AutoRedFeedTest: OpMode() {
@@ -33,7 +34,7 @@ class AutoRedFeedTest: OpMode() {
 
     //endregion
 
-    val schedule = automator.newSchedule(
+    val schedule = automator.scheduledCommand(
         automator.shoot,
         automator.goto(path1()),
         automator.runIntake.forTime(10000),
@@ -47,7 +48,7 @@ class AutoRedFeedTest: OpMode() {
     }
 
     override fun start() {
-        automator.followSchedule(schedule)
+        schedule.run()
     }
 
     override fun loop() {

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.subsystem.Automator
+import org.firstinspires.ftc.teamcode.subsystem.run
 
 @Autonomous(name = "Blue Autonomous")
 class AutoBlue1: OpMode() {
@@ -21,7 +22,7 @@ class AutoBlue1: OpMode() {
     fun path1(): Path = Paths.curve(start, path1Control1, path1).linear(start, path1)
     //endregion
 
-    private val schedule = automator.newSchedule(
+    private val schedule = automator.scheduledCommand(
         automator.shoot,
         automator.goto(path1())
     )
@@ -31,7 +32,7 @@ class AutoBlue1: OpMode() {
     }
 
     override fun start() {
-        automator.followSchedule(schedule)
+        schedule.run()
     }
 
     override fun loop() {
