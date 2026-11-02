@@ -35,15 +35,17 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     //endregion
 
     //region Commands
-    val windupTurret: Command = newCommand(
-        start = { flywheel.run(targeter.flywheelSpeed) }
+    val windupFlywheel: Command = newCommand(
+        loop = { flywheel.run(targeter.flywheelSpeed) }
     )
 
-    val shootTurret: Command = newCommand(
+    val runFlywheel: Command = newCommand(
         start = {
-            flywheel.run(targeter.flywheelSpeed)
             intakeMotor.power = 0.9
             feederMotor.power = 0.7
+        },
+        loop = {
+            flywheel.run(targeter.flywheelSpeed)
         },
         end = {
             flywheel.stop()
@@ -62,9 +64,9 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         end = { intakeMotor.power = 0.0 }
     )
 
-    val shoot: Command = scheduledCommand(
-        windupTurret.forTime(2000),
-        shootTurret.forTime(3000)
+    val shoot: Command = sequential(
+        windupFlywheel.forTime(2000),
+        runFlywheel.forTime(3000)
     )
     //endregion
 
@@ -73,8 +75,16 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         return follow(follower, path)
     }
 
-    fun scheduledCommand(vararg commands: Command): Command {
-        return sequential(rehome, *commands)
+    fun scheduledCommand(vararg commands: Command, withRehoming: Boolean = true): Command {
+        if (withRehoming) {
+            return sequential(
+                rehome, *commands
+            )
+        } else {
+            return sequential(
+                *commands
+            )
+        }
     }
 
     fun newCommand(
