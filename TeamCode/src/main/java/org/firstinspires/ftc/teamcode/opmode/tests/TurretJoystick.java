@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Telemetry;
 import org.firstinspires.ftc.teamcode.subsystem.Turret;
 
 @TeleOp(name = "Turret Joystick", group = "Test")
@@ -30,6 +31,13 @@ public class TurretJoystick extends LinearOpMode {
                 double targetAngle = Math.toDegrees(Math.atan2(x, y));
                 turret.setTargetAngle(targetAngle);
             }
+            Telemetry.put("stick x", x);
+            Telemetry.put("stick y", y);
+            Telemetry.put("mag", mag);
+            Telemetry.put("A", gamepad1.a);
+            Telemetry.send();
+
+            turret.update();
 
             turret.update();
         }

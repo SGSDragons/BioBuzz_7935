@@ -81,7 +81,13 @@ public class Turret {
         double absPos = getAbsolutePosition();
         return absPos - Math.floor(absPos);
     }
+// get absolute Position for turret/target
 
+    public double getTurretTarget(){
+        double absPos =getAbsolutePosition();
+        return absPos - Math.floor(absPos);
+
+    }
     /** Call once every loop. */
     public void update() {
         servo.update();
@@ -96,10 +102,11 @@ public class Turret {
             setTargetAngle(-TurretBias.bias);
         }
 
-        Telemetry.INSTANCE.put("turret/target", target);
-        Telemetry.INSTANCE.put("turret/rotations", getTurretRotations());
-        Telemetry.INSTANCE.put("turret/rehoming", rehoming);
-        Telemetry.INSTANCE.put("turret/magswitch", magSwitch.getState());
+        double logTarget = target - Math.floor(target);
+        Telemetry.put("turret/target", logTarget);
+        Telemetry.put("turret/rotations", getTurretRotations());
+        Telemetry.put("turret/rehoming", rehoming);
+        Telemetry.put("turret/magswitch", magSwitch.getState());
 
         FieldDrawing.INSTANCE.updateTurretRotations(getTurretRotations());
     }
