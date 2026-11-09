@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.subsystem.ServoMotor;
 
 @TeleOp(name="Chase Servo Test", group="Test")
+@Disabled
 public class ServoTestMode extends LinearOpMode {
 
     @Override

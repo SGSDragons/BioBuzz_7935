@@ -86,7 +86,7 @@ public class Targeter {
         double turretAngle = wrap(fieldAngle - p.heading());
 
         double value = (turretAngle - turretMinAngle) / (turretMaxAngle - turretMinAngle);
-        return Math.max(0, Math.min(1, value));
+        return 360*Math.max(0, Math.min(1, value));
     }
 
     // Flywheel velocity based on distance to the current target. /

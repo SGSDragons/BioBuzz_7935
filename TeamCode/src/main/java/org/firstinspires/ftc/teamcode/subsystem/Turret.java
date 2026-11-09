@@ -19,16 +19,13 @@ public class Turret {
     private final String encoderName = "feeder";
     private final String magswitchName = "turretmagnet";
 
-    // Set the gear ratio using constants
-    private final double servoTeeth = 86;
-    private final double gear1Teeth = 28;
     private final double gear2Teeth = 60;
     private final double turretTeeth = 138;
 
     // Watch the negations:
     // With two gears, increasing turret rotations means decreasing servo.
     // With three, they will not be inverted.
-    private final double turretRevsPerServoRev = (servoTeeth / gear1Teeth) * (gear2Teeth / turretTeeth);
+    private final double turretRevsPerServoRev = -gear2Teeth / turretTeeth;
     private final DigitalChannel magSwitch;
 
     private final ServoMotor servo;
@@ -84,7 +81,7 @@ public class Turret {
 // get absolute Position for turret/target
 
     public double getTurretTarget(){
-        double absPos =getAbsolutePosition();
+        double absPos = getAbsolutePosition();
         return absPos - Math.floor(absPos);
 
     }
@@ -94,16 +91,17 @@ public class Turret {
         if (!rehoming) {
             servo.gotoPosition(target/turretRevsPerServoRev);
         } else if (this.magSwitch.getState()) {
-            servo.setPower(0.2);
+            servo.setPower(0.4*Math.signum(turretRevsPerServoRev));
         } else {
             servo.setPower(0.0);
             servo.rezero();
             rehoming = false;
-            setTargetAngle(-TurretBias.bias);
+            setTargetAngle(0.0);
         }
 
         double logTarget = target - Math.floor(target);
         Telemetry.put("turret/target", logTarget);
+        Telemetry.put("turret/abstarget", target);
         Telemetry.put("turret/rotations", getTurretRotations());
         Telemetry.put("turret/rehoming", rehoming);
         Telemetry.put("turret/magswitch", magSwitch.getState());

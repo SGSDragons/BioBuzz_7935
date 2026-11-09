@@ -38,8 +38,6 @@ public class TurretJoystick extends LinearOpMode {
             Telemetry.send();
 
             turret.update();
-
-            turret.update();
         }
     }
 }
