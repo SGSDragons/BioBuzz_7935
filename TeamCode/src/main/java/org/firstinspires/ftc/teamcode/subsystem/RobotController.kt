@@ -54,7 +54,7 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
         }
 
         if (autoAim) {
-            turret.setTargetAngle(targeter.getAimValue() * 360.0)
+            turret.setTargetAngle(targeter.getAimValue())
         } else {
             turret.setTargetAngle(turret.turretRotations + operatorGamepad.left_trigger - operatorGamepad.right_trigger)
         }
@@ -75,6 +75,17 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
 
         if (driverGamepad.dpad_up) {
             follower.setHeading(0.0)
+        }
+
+        when {
+            driverGamepad.aWasPressed() -> follower.setPose(FieldPoints.nearFlower)
+            driverGamepad.xWasPressed() -> follower.setPose(FieldPoints.leftFlower)
+            driverGamepad.bWasPressed() -> follower.setPose(FieldPoints.rightFlower)
+            driverGamepad.yWasPressed() -> follower.setPose(FieldPoints.farFlower)
+            driverGamepad.dpadUpWasPressed() -> follower.setHeading(0.0)
+            driverGamepad.dpadDownWasPressed() -> follower.setHeading(180.0)
+            driverGamepad.dpadLeftWasPressed() -> follower.setHeading(90.0)
+            driverGamepad.dpadRightWasPressed() -> follower.setHeading(-90.0)
         }
 
         Telemetry.put("left stick y", -driverGamepad.left_stick_y)

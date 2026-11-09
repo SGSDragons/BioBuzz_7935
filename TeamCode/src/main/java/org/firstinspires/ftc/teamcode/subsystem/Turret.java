@@ -8,12 +8,17 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Telemetry;
 
+import java.util.function.Supplier;
+
 /**
  * A turret driven by a ServoMotor through a gear. You give it a target angle
  * in degrees; it picks the shortest route and tells the servo where to go.
  * Angle 0 is wherever the servo was when the Turret was created.
  */
+@Config
 public class Turret {
+    public static double bias = 0;
+    public static boolean verbose = false;
 
     private final String servoPwmName = "360servo";
     private final String encoderName = "feeder";
@@ -31,11 +36,8 @@ public class Turret {
     private final ServoMotor servo;
     private boolean rehoming = true;
     private double target = 0.0;
+    private double lastTarget = Double.MAX_VALUE;
 
-    @Config
-    public static class TurretBias {
-        public static double bias = 0;
-    }
 
     public Turret(HardwareMap hardwareMap) {
         this.servo = new ServoMotor(
@@ -60,7 +62,18 @@ public class Turret {
             return;
         }
 
-        double targetRotations = (degrees / 360.0) + TurretBias.bias;
+
+        // Replace the direction the ball should go with where
+        // the hood should be.
+        degrees = -degrees;
+
+        if (Math.abs(lastTarget - degrees) < 1) {
+            // Avoid all the sensor reads and changes if there's no
+            // real change.
+            return;
+        }
+
+        double targetRotations = (degrees / 360.0) + bias;
         double servoRotations = servo.getPosition();
         double turretRotations = servoRotations * turretRevsPerServoRev;
 
@@ -99,12 +112,12 @@ public class Turret {
             setTargetAngle(0.0);
         }
 
-        double logTarget = target - Math.floor(target);
-        Telemetry.put("turret/target", logTarget);
-        Telemetry.put("turret/abstarget", target);
-        Telemetry.put("turret/rotations", getTurretRotations());
-        Telemetry.put("turret/rehoming", rehoming);
-        Telemetry.put("turret/magswitch", magSwitch.getState());
+        if (verbose) {
+            log("target", target - Math.floor(target));
+            log("rotations", getTurretRotations());
+            log("rehoming", rehoming);
+            log("magswitch", magSwitch.getState());
+        }
 
         FieldDrawing.INSTANCE.updateTurretRotations(getTurretRotations());
     }
@@ -112,5 +125,10 @@ public class Turret {
     private double getAbsolutePosition() {
         double servoRotations = servo.getPosition();
         return servoRotations * turretRevsPerServoRev;
+    }
+
+    private void log(String name, Object value) {
+        if (!verbose) return;
+        Telemetry.put("turret/" + name, value);
     }
 }

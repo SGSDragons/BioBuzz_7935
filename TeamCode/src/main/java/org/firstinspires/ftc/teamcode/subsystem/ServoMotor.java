@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Telemetry;
  */
 @Config
 public class ServoMotor {
+    public static boolean verbose = false;
 
     private final Servo servo;
     private final DcMotorEx servoPose;
@@ -40,7 +41,7 @@ public class ServoMotor {
         }
 
         // Map [-1.0, 1.0] on [0.0, 1.0]
-        Telemetry.put("servo/power", power);
+        log("power", power);
         power = (power + 1)/2.0;
         servo.setPosition(power);
     }
@@ -56,14 +57,19 @@ public class ServoMotor {
             power += feedForward * (error < 0 ? -1.0 : 1.0);
             setPower(power);
         }
-        Telemetry.put("servo/error", error);
-        Telemetry.put("servo/target", position);
+        log("error", error);
+        log("target", position);
     }
 
     // Must be called once every cycle to update position tracking
     public void update() {
         // Send a signal to drive the servo to the desired position
         // Send telemetry information (power and position)
-        Telemetry.put("servo/position", getPosition());
+        log("position", getPosition());
+    }
+
+    private void log(String name, Object value) {
+        if (!verbose) return;
+        Telemetry.put("servo/" + name, value);
     }
 }

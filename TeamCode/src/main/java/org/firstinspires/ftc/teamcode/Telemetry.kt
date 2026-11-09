@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.subsystem.FieldDrawing
 
 object Telemetry {
     private var packet = TelemetryPacket(false)
+    private var lastTick = 0L
 
     @JvmStatic
     fun put(key: String, value: Any) {
@@ -14,6 +15,10 @@ object Telemetry {
 
     @JvmStatic
     fun send() {
+        val now = System.currentTimeMillis()
+        packet.put("latencyMs", now-lastTick)
+        lastTick = now
+
         FieldDrawing.update(packet.fieldOverlay())
         FtcDashboard.getInstance().sendTelemetryPacket(packet)
         packet = TelemetryPacket(false)

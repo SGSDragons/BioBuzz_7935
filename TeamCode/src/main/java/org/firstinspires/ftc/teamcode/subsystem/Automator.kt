@@ -18,9 +18,6 @@ fun Command.forTime(ms: Int): Command = race(this, waitMs(ms.toDouble()))
 fun Command.run() = schedule(this)
 
 class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolean) {
-    init {
-        Scheduler.reset()
-    }
 
     //region Class Definitions
     val follower: Follower = Constants.create(hardwareMap).also { it.setPose(start) }
@@ -31,6 +28,11 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         it.direction = DcMotorSimple.Direction.REVERSE
     }
     val intakeMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "intake")
+
+    init {
+        Scheduler.reset()
+        turret.rehome()
+    }
 
     //endregion
 
