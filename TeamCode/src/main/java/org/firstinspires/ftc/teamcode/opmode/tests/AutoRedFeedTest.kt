@@ -36,10 +36,12 @@ class AutoRedFeedTest: OpMode() {
 
     val schedule = automator.scheduledCommand(
         automator.shoot,
-        automator.goto(path1()),
-        automator.runIntake.forTime(10000),
+        automator.firstToFinishCommand(
+            automator.goto(path1()),
+            automator.runIntake
+        ),
         automator.goto(path2()),
-        automator.shoot,
+        automator.shootBalls(4),
         automator.goto(path3())
     )
 

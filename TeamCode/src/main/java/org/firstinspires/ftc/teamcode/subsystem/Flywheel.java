@@ -13,10 +13,9 @@ public class Flywheel {
     public static double kP = -200.0;
     public static double kI;
     public static double kD = -20;
-
     public static boolean LEFT_FORWARD = true;
     public static boolean RIGHT_FORWARD = false;
-
+    private boolean ballShot = false;
     private final DcMotorEx leftMotor;
     private final DcMotorEx rightMotor;
     private double targetSpeed = 0.0;
@@ -47,6 +46,19 @@ public class Flywheel {
         rightMotor.setVelocity(speed);
     }
 
+    public double getVelocity() {
+        return (leftMotor.getVelocity() + rightMotor.getVelocity()) / 2;
+    }
+
+    public boolean wasBallShot() {
+        if (ballShot) {
+            ballShot = false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void stop() {
         targetSpeed = 0.0;
         leftMotor.setPower(0.0);
@@ -62,5 +74,6 @@ public class Flywheel {
         Telemetry.put("flywheel/left/velocity", leftMotor.getVelocity());
         Telemetry.put("flywheel/right/position", rightMotor.getCurrentPosition());
         Telemetry.put("flywheel/right/velocity", rightMotor.getVelocity());
+        Telemetry.put("flywheel/averageVelocity", getVelocity());
     }
 }

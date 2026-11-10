@@ -18,11 +18,11 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
     val intakePower = 0.9
     val feederPower = 1.0
 
-    // Reuse an existing follower, since it could be coming from Autonomous
     private val follower: Follower = Constants.create(hardwareMap)
     private val turret: Turret = Turret(hardwareMap).also { it.rehome() }
     private val targeter: Targeter = Targeter(follower, isRed)
     private val flywheel = Flywheel(hardwareMap)
+    private val audioPlayer = AudioPlayer(hardwareMap)
 
     private var autoAim: Boolean = true
 
@@ -51,6 +51,18 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
         }
         if (operatorGamepad.bWasPressed()) {
             autoAim = !autoAim
+        }
+
+        if (operatorGamepad.options || driverGamepad.options) {
+            audioPlayer.errorSound()
+        }
+
+        if (driverGamepad.aWasPressed()) {
+            if (isRed) {
+                setPose(56.0, 134.0, 270.0)
+            } else {
+                setPose(104.0, 7.0, 90.0)
+            }
         }
 
         if (autoAim) {

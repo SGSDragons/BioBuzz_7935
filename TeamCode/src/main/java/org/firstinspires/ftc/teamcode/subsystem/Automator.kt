@@ -5,6 +5,7 @@ import com.pedropathing.ivy.Command
 import com.pedropathing.ivy.Scheduler
 import com.pedropathing.ivy.Scheduler.schedule
 import com.pedropathing.ivy.commands.Commands.waitMs
+import com.pedropathing.ivy.groups.Groups.parallel
 import com.pedropathing.ivy.groups.Groups.race
 import com.pedropathing.ivy.groups.Groups.sequential
 import com.pedropathing.ivy.pedro.PedroCommands.follow
@@ -12,10 +13,18 @@ import com.pedropathing.math.Pose
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
 fun Command.forTime(ms: Int): Command = race(this, waitMs(ms.toDouble()))
-fun Command.run() = schedule(this)
+private var activeAutomator: Automator? = null
+fun Command.run() {
+    if (activeAutomator == null) {
+        Telemetry.put("automator/nullError", "Attempt to run .run() without automator initialized!")
+        return
+    }
+    activeAutomator!!.scheduleWrapper(this)
+}
 
 class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolean) {
 
@@ -29,33 +38,49 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     }
     val intakeMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "intake")
 
+    //endregion
+
     init {
         Scheduler.reset()
         turret.rehome()
+        activeAutomator = this
     }
 
-    //endregion
-
     //region Commands
+    fun scheduleWrapper(command: Command) {
+        schedule(command)
+    }
+
     val windupFlywheel: Command = newCommand(
-        loop = { flywheel.run(targeter.flywheelSpeed) }
+        loop = { flywheel.run(targeter.flywheelSpeed) },
+        endCondition = { flywheel.velocity in (targeter.flywheelSpeed - 10)..(targeter.flywheelSpeed + 75) }
     )
 
-    val runFlywheel: Command = newCommand(
-        start = {
-            intakeMotor.power = 0.9
-            feederMotor.power = 0.7
-        },
-        loop = {
-            flywheel.run(targeter.flywheelSpeed)
-        },
-        end = {
-            flywheel.stop()
-            intakeMotor.power = 0.0
-            feederMotor.power = 0.0
-        },
-        endCondition = { false }
-    )
+    fun shootBalls(balls: Int): Command {
+        var ballsShot = 0
+
+        return newCommand(
+            start = {
+                intakeMotor.power = 0.9
+                feederMotor.power = 0.7
+            },
+            loop = {
+                flywheel.run(targeter.flywheelSpeed)
+                if (flywheel.wasBallShot()) {
+                    ballsShot += 1
+                }
+            },
+            end = {
+                flywheel.stop()
+                intakeMotor.power = 0.0
+                feederMotor.power = 0.0
+            },
+            endCondition = {
+                ballsShot >= balls
+            }
+        )
+    }
+
     val rehome: Command = newCommand(
         start = { turret.rehome() },
         endCondition = { !turret.isRehoming }
@@ -66,9 +91,9 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         end = { intakeMotor.power = 0.0 }
     )
 
-    val shoot: Command = sequential(
-        windupFlywheel.forTime(2000),
-        runFlywheel.forTime(3000)
+    val shoot: Command = scheduledCommand(
+        windupFlywheel,
+        shootBalls(3).forTime(3000)
     )
     //endregion
 
@@ -77,16 +102,16 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         return follow(follower, path)
     }
 
-    fun scheduledCommand(vararg commands: Command, withRehoming: Boolean = true): Command {
-        if (withRehoming) {
-            return sequential(
-                rehome, *commands
-            )
-        } else {
-            return sequential(
-                *commands
-            )
-        }
+    fun scheduledCommand(vararg commands: Command): Command {
+        return sequential(*commands)
+    }
+
+    fun concurrentCommand(vararg commands: Command): Command {
+        return parallel(*commands)
+    }
+
+    fun firstToFinishCommand(vararg commands: Command): Command {
+        return race(*commands)
     }
 
     fun newCommand(
@@ -101,7 +126,6 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
             .setDone { endCondition() }
             .setEnd { end() }
     }
-    //endregion
 
     fun update() {
         follower.update()
@@ -109,5 +133,6 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         turret.update()
         flywheel.update()
     }
+    //endregion
 
 }

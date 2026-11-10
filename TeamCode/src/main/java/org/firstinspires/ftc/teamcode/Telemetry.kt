@@ -8,6 +8,7 @@ object Telemetry {
     private var packet = TelemetryPacket(false)
     private var lastTick = 0L
 
+
     @JvmStatic
     fun put(key: String, value: Any) {
         packet.put(key, value)
