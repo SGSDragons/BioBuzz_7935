@@ -11,9 +11,7 @@ import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
 class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, val hardwareMap: HardwareMap, val isRed: Boolean) {
-    val feederMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "feeder").also {
-        it.direction = DcMotorSimple.Direction.REVERSE
-    }
+    val feederMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "feeder")
     val intakeMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "intake")
     val intakePower = 0.9
     val feederPower = 1.0
