@@ -1,79 +1,77 @@
-package org.firstinspires.ftc.teamcode.subsystem;
+package org.firstinspires.ftc.teamcode.subsystem
 
-import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.teamcode.Telemetry;
+import com.acmerobotics.dashboard.config.Config
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorEx
+import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.Telemetry.put
 
 @Config
-public class Flywheel {
-    public static double kF = -20.0;
-    public static double kP = -200.0;
-    public static double kI;
-    public static double kD = -20;
-    public static boolean LEFT_FORWARD = true;
-    public static boolean RIGHT_FORWARD = false;
-    private boolean ballShot = false;
-    private final DcMotorEx leftMotor;
-    private final DcMotorEx rightMotor;
-    private double targetSpeed = 0.0;
+class Flywheel(hardwareMap: HardwareMap) {
+    private var ballShot = false
+    private val leftMotor: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "leftshooter")
+    private val rightMotor: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "rightshooter")
+    private var targetSpeed = 0.0
 
-    public Flywheel(HardwareMap hardwareMap) {
-        leftMotor = hardwareMap.get(DcMotorEx.class, "leftshooter");
-        rightMotor = hardwareMap.get(DcMotorEx.class, "rightshooter");
+    init {
+        leftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        rightMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
 
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        leftMotor.setDirection(LEFT_FORWARD ?
-                DcMotorEx.Direction.FORWARD :
-                DcMotorEx.Direction.REVERSE);
-        rightMotor.setDirection(RIGHT_FORWARD ?
-                DcMotorEx.Direction.FORWARD :
-                DcMotorEx.Direction.REVERSE);
+        leftMotor.direction = if (LEFT_FORWARD) DcMotorSimple.Direction.FORWARD else DcMotorSimple.Direction.REVERSE
+        rightMotor.direction = if (RIGHT_FORWARD) DcMotorSimple.Direction.FORWARD else DcMotorSimple.Direction.REVERSE
     }
 
-    public void reconfigure() {
-        leftMotor.setVelocityPIDFCoefficients(kP,kI,kD,kF);
-        rightMotor.setVelocityPIDFCoefficients(kP,kI,kD,kF);
+    fun reconfigure() {
+        leftMotor.setVelocityPIDFCoefficients(kP, kI, kD, kF)
+        rightMotor.setVelocityPIDFCoefficients(kP, kI, kD, kF)
     }
 
-    public void run(double speed) {
-        targetSpeed = speed;
-        leftMotor.setVelocity(speed);
-        rightMotor.setVelocity(speed);
+    fun run(speed: Double) {
+        targetSpeed = speed
+        leftMotor.velocity = speed
+        rightMotor.velocity = speed
     }
 
-    public double getVelocity() {
-        return (leftMotor.getVelocity() + rightMotor.getVelocity()) / 2;
-    }
+    val velocity: Double
+        get() = (leftMotor.velocity + rightMotor.velocity) / 2
 
-    public boolean wasBallShot() {
+    fun wasBallShot(): Boolean {
         if (ballShot) {
-            ballShot = false;
-            return true;
+            ballShot = false
+            return true
         } else {
-            return false;
+            return false
         }
     }
 
-    public void stop() {
-        targetSpeed = 0.0;
-        leftMotor.setPower(0.0);
-        rightMotor.setPower(0.0);
+    fun stop() {
+        targetSpeed = 0.0
+        leftMotor.power = 0.0
+        rightMotor.power = 0.0
     }
 
-    public void update() {
-        reconfigure();
-        Telemetry.put("flywheel/target", targetSpeed);
+    fun update() {
+        reconfigure()
+        put("flywheel/target", targetSpeed)
 
-        Telemetry.put("flywheel/left/position", leftMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).p);
-        Telemetry.put("flywheel/left/position", leftMotor.getCurrentPosition());
-        Telemetry.put("flywheel/left/velocity", leftMotor.getVelocity());
-        Telemetry.put("flywheel/right/position", rightMotor.getCurrentPosition());
-        Telemetry.put("flywheel/right/velocity", rightMotor.getVelocity());
-        Telemetry.put("flywheel/averageVelocity", getVelocity());
+        put(
+            "flywheel/left/position",
+            leftMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).p
+        )
+        put("flywheel/left/position", leftMotor.currentPosition)
+        put("flywheel/left/velocity", leftMotor.velocity)
+        put("flywheel/right/position", rightMotor.currentPosition)
+        put("flywheel/right/velocity", rightMotor.velocity)
+        put("flywheel/averageVelocity", this.velocity)
+    }
+
+    companion object {
+        @JvmField var kF: Double = 15.0
+        @JvmField var kP: Double = 50.0
+        @JvmField var kI: Double = 0.0
+        @JvmField var kD: Double = 20.0
+        @JvmField var LEFT_FORWARD: Boolean = true
+        @JvmField var RIGHT_FORWARD: Boolean = true
     }
 }
