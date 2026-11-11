@@ -53,7 +53,7 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
             autoAim = !autoAim
         }
 
-        if (operatorGamepad.options || driverGamepad.options) {
+        if (operatorGamepad.start || driverGamepad.start) {
             audioPlayer.errorSound()
         }
 
