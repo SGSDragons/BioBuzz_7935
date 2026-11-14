@@ -20,7 +20,7 @@ class Targeter(follower: Follower, isRed: Boolean) {
 
     @Config
     companion object {
-        @JvmField var defaultVelocity: Double = 1500.0
+        @JvmField var defaultVelocity: Double = 1550.0
     }
 
     private val localizer: Localizer = follower.localizer
@@ -33,23 +33,23 @@ class Targeter(follower: Follower, isRed: Boolean) {
     private val velocityLookupTable: List<List<Double>> =
         if (isRed) {
             listOf(
-                     // 0      1        2            3      4      5
-                listOf(0.0, 0.0, defaultVelocity , 0.0, 0.0, 0.0),            // 0
-                listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),                         // 1
-                listOf(-1000.0, -1000.0, -1000.0, -1000.0, -1000.0, -1000.0), // 2 Always low velocity, cant see hive
-                listOf(-1000.0, -1000.0, -1000.0, -1000.0, -1000.0, -1000.0), // 3 Low velocity
-                listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),                         // 4
-                listOf(0.0, 0.0, defaultVelocity, 0.0, 0.0, 0.0)              // 5
+                     //   0      1        2       3       4       5
+                listOf(1580.0, 1575.0, 1550.0, 1575.0, 1580.0, 1750.0), // 0
+                listOf(1560.0, 1555.0, 1545.0, 1555.0, 1560.0, 1700.0), // 1
+                listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 2 Always low velocity, cant see hive
+                listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 3 Low velocity
+                listOf(1560.0, 1555.0, 1545.0, 1555.0, 1560.0, 1520.0), // 4
+                listOf(1580.0, 1575.0, 1550.0, 1575.0, 1580.0, 1750.0), // 5
             )
         } else {
             listOf(
-                //          0                          1                      2                    3                   4                     5
-                listOf(0.0, 0.0, 0.0 , defaultVelocity, 0.0, 0.0),            // 0
-                listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),                         // 1
-                listOf(-1000.0, -1000.0, -1000.0, -1000.0, -1000.0, -1000.0), // 2 Always low velocity, cant see hive
-                listOf(-1000.0, -1000.0, -1000.0, -1000.0, -1000.0, -1000.0), // 3 Low velocity
-                listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),                         // 4
-                listOf(0.0, 0.0, 0.0, defaultVelocity, 0.0, 0.0)              // 5
+                     //   0      1        2       3       4       5
+                listOf(1750.0, 1580.0, 1575.0, 1550.0, 1575.0, 1580.0), // 0
+                listOf(1700.0, 1560.0, 1555.0, 1545.0, 1555.0, 1560.0), // 1
+                listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 2 Always low velocity, cant see hive
+                listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 3 Low velocity
+                listOf(1700.0, 1560.0, 1555.0, 1545.0, 1555.0, 1560.0), // 4
+                listOf(1750.0, 1580.0, 1575.0, 1550.0, 1575.0, 1580.0), // 5
             )
         }
 
