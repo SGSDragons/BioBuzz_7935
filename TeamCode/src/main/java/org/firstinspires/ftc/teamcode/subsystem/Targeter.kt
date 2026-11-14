@@ -1,108 +1,156 @@
-package org.firstinspires.ftc.teamcode.subsystem;
+package org.firstinspires.ftc.teamcode.subsystem
 
-import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Localizer;
-import com.pedropathing.math.Pose;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.acmerobotics.dashboard.config.Config
+import com.pedropathing.follower.Follower
+import com.pedropathing.localization.Localizer
+import org.firstinspires.ftc.teamcode.Telemetry
+import kotlin.math.atan2
+import kotlin.math.hypot
+import kotlin.math.max
+import kotlin.math.min
 
 @Config
-public class Targeter {
-     // named spot on field
-     public static class Target {
-        public final String name;
-        public final double x, y; // Field inches
+class Targeter(follower: Follower, isRed: Boolean) {
+    // named spot on field
+    data class Target(
+        val name: String,
+        val x: Double, // Field inches
+        val y: Double  // Field inches
+    )
 
-        public Target(String name, double x, double y) {
-            this.name = name;
-            this.x = x;
-            this.y = y;
+    @Config
+    companion object {
+        @JvmField var defaultVelocity: Double = 1500.0
+    }
+
+    private val localizer: Localizer = follower.localizer
+    private val targets: MutableList<Target> = ArrayList()
+    private var currentIndex = 0
+
+    val turretVector3: Vector3
+        get() = Vector3(localizer.pose().x(), localizer.pose().y(), 11.0)
+
+    private val velocityLookupTable: List<List<Double>> =
+        if (isRed) {
+            listOf(
+                     // 0      1        2            3      4      5
+                listOf(0.0, 0.0, defaultVelocity , 0.0, 0.0, 0.0),            // 0
+                listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),                         // 1
+                listOf(-1000.0, -1000.0, -1000.0, -1000.0, -1000.0, -1000.0), // 2 Always low velocity, cant see hive
+                listOf(-1000.0, -1000.0, -1000.0, -1000.0, -1000.0, -1000.0), // 3 Low velocity
+                listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),                         // 4
+                listOf(0.0, 0.0, defaultVelocity, 0.0, 0.0, 0.0)              // 5
+            )
+        } else {
+            listOf(
+                //          0                          1                      2                    3                   4                     5
+                listOf(0.0, 0.0, 0.0 , defaultVelocity, 0.0, 0.0),            // 0
+                listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),                         // 1
+                listOf(-1000.0, -1000.0, -1000.0, -1000.0, -1000.0, -1000.0), // 2 Always low velocity, cant see hive
+                listOf(-1000.0, -1000.0, -1000.0, -1000.0, -1000.0, -1000.0), // 3 Low velocity
+                listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),                         // 4
+                listOf(0.0, 0.0, 0.0, defaultVelocity, 0.0, 0.0)              // 5
+            )
         }
-     }
 
-     public static double velocity = -1625.0;
+    private fun getVelocityFromXY(x: Double, y: Double): Double {
+        val tileSize = 140.0 / 6.0
+        val halfTile = tileSize / 2.0
 
-     private final Localizer localizer;
-     private final List<Target> targets = new ArrayList<>();
-     private int currentIndex = 0;
+        val gridX = (x - halfTile) / tileSize
+        val gridY = (y - halfTile) / tileSize
 
+        val x0 = gridX.toInt().coerceIn(0, 4)
+        val y0 = gridY.toInt().coerceIn(0, 4)
+
+        val x1 = x0 + 1
+        val y1 = y0 + 1
+
+        val dx = (gridX - x0).coerceIn(0.0, 1.0)
+        val dy = (gridY - y0).coerceIn(0.0, 1.0)
+
+        val v00 = velocityLookupTable[y0][x0]
+        val v10 = velocityLookupTable[y0][x1]
+        val v01 = velocityLookupTable[y1][x0]
+        val v11 = velocityLookupTable[y1][x1]
+
+        val top = v00 + (v10 - v00) * dx
+        val bottom = v01 + (v11 - v01) * dx
+
+        return -(top + (bottom - top) * dy)
+    }
+
+    val flywheelSpeed: Double
+        get() =
+            //getVelocityFromXY(localizer.pose().x(), localizer.pose().y())
+            -defaultVelocity
+
+    fun addTarget(t: Target?) {
+        targets.add(t!!)
+    }
+
+    fun setTarget(index: Int) {
+        if (index >= 0 && index < targets.size) {
+            currentIndex = index
+        } else {
+            throw IndexOutOfBoundsException("Target index out of bounds")
+        }
+    }
+
+    fun nextTarget() {
+        currentIndex = (currentIndex + 1) % targets.size
+    }
+
+    val currentTarget: Target
+        get() = targets[currentIndex]
+
+    // Turret range in radians, reflective to the robot's forward direction TUNE
+    private val turretMinAngle = 0.0
+    private val turretMaxAngle = 2 * Math.PI
+
+    // Flywheel speed = base + perInch * distance. TUNE ON FEILD.
+    private val flywheelBase = 1000.0 // base speed in ticks per second
+    private val flywheelPerInch = 8.0
 
     // Constructor: gets the Localizer from the Follower
-    public Targeter(Follower follower, boolean isRed) {
-        this.localizer = follower.localizer;
+    init {
 
         // Placeholder positions. Replace with real field coordinates.
         if (isRed) {
-            addTarget(new Target("A", 58, 50));
-            addTarget(new Target("B", 58, 90));
+            addTarget(Target("A", 58.0, 50.0))
+            addTarget(Target("B", 58.0, 90.0))
         } else {
-            addTarget(new Target("A", 84, 90));
-            addTarget(new Target("B", 84, 50));
-        }
-    }
-    public void addTarget(Target t) {
-        targets.add(t);
-    }
-
-    public void setTarget(int index) {
-        if (index >= 0 && index < targets.size()) {
-            currentIndex = index;
-        } else {
-            throw new IndexOutOfBoundsException("Target index out of bounds");
+            addTarget(Target("A", 84.0, 90.0))
+            addTarget(Target("B", 84.0, 50.0))
         }
     }
 
-    public void nextTarget() {
-        currentIndex = (currentIndex + 1) % targets.size();
+    private fun distanceToTarget(): Double {
+        val p = turretVector3
+        val t = this.currentTarget
+        val t3 = Vector3(t.x, t.y, 60.0)
+        Telemetry.put("targeter/distance", hypot(hypot(t3.x - p.x, t3.y - p.y), t3.z - p.z))
+        return hypot(hypot(t3.x - p.x, t3.y - p.y), t3.z - p.z)
     }
 
-    public Target getCurrentTarget() {
-        return targets.get(currentIndex);
-    }
+    val aimValue: Double
+        // 0-1 turret position for the turret aimer./
+        get() {
+            val p = localizer.pose()
+            val t = this.currentTarget
 
-    // Turret range in radians, reflective to the robot's forward direction TUNE
-    private double turretMinAngle = 0;
-    private double turretMaxAngle = 2*Math.PI;
+            val fieldAngle = atan2(t.y - p.y(), t.x - p.x())
+            val turretAngle = wrap(fieldAngle - p.heading())
 
-    // Flywheel speed = base + perInch * distance. TUNE ON FEILD.
-    private double flywheelBase = 1000; // base speed in ticks per second
-    private double flywheelPerInch =8;
-
-    private double distanceToTarget() {
-        Pose p = localizer.pose();
-        Target t = getCurrentTarget();
-        return Math.hypot(t.x - p.x(), t.y - p.y());
-
-    }
-
-    // 0-1 turret position for the turret aimer./
-    public double getAimValue() {
-        Pose p = localizer.pose();
-        Target t = getCurrentTarget();
-
-        double fieldAngle = Math.atan2(t.y - p.y(), t.x - p.x());
-        double turretAngle = wrap(fieldAngle - p.heading());
-
-        double value = (turretAngle - turretMinAngle) / (turretMaxAngle - turretMinAngle);
-        return 360*Math.max(0, Math.min(1, value));
-    }
-
-    // Flywheel velocity based on distance to the current target. /
-    public double getFlywheelSpeed() {
-        // TODO: Compute this based on position
-        return velocity;
-//        Return flywheelBase + flywheelPerInch * distanceToTarget();
-
-    }
+            val value = (turretAngle - turretMinAngle) / (turretMaxAngle - turretMinAngle)
+            return 360 * max(0.0, min(1.0, value))
+        }
 
     // Wrap an angle into -PI..PI
-    private double wrap(double a) {
-        while (a > turretMaxAngle) a -= 2 * Math.PI;
-        while (a < turretMinAngle) a += 2 * Math.PI;
-        return a;
+    private fun wrap(a: Double): Double {
+        var a = a
+        while (a > turretMaxAngle) a -= 2 * Math.PI
+        while (a < turretMinAngle) a += 2 * Math.PI
+        return a
     }
-
 }
-

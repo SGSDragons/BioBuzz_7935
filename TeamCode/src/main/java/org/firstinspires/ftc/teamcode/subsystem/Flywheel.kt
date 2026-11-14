@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.Telemetry.put
 
 @Config
@@ -31,6 +32,7 @@ class Flywheel(hardwareMap: HardwareMap) {
         targetSpeed = speed
         leftMotor.velocity = speed
         rightMotor.velocity = speed
+        Telemetry.put("flywheel/targetSpeed", targetSpeed)
     }
 
     val velocity: Double
@@ -66,6 +68,7 @@ class Flywheel(hardwareMap: HardwareMap) {
         put("flywheel/averageVelocity", this.velocity)
     }
 
+    @Config
     companion object {
         @JvmField var kF: Double = 15.0
         @JvmField var kP: Double = 50.0

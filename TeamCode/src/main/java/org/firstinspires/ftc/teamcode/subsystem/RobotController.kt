@@ -11,13 +11,13 @@ import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
 
 class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, val hardwareMap: HardwareMap, val isRed: Boolean) {
-    val feederMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "feeder")
+    val feederMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "feeder").also { it.direction = DcMotorSimple.Direction.REVERSE }
     val intakeMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "intake")
     val intakePower = 0.9
     val feederPower = 1.0
 
     private val follower: Follower = Constants.create(hardwareMap)
-    private val turret: Turret = Turret(hardwareMap).also { it.rehome() }
+    private val turret: Turret = Turret(hardwareMap)
     private val targeter: Targeter = Targeter(follower, isRed)
     private val flywheel = Flywheel(hardwareMap)
     private val audioPlayer = AudioPlayer(hardwareMap)
@@ -44,9 +44,6 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
             targeter.setTarget(1)
         }
 
-        if (operatorGamepad.aWasPressed()) {
-            turret.rehome()
-        }
         if (operatorGamepad.bWasPressed()) {
             autoAim = !autoAim
         }
@@ -55,18 +52,10 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
             audioPlayer.errorSound()
         }
 
-        if (driverGamepad.aWasPressed()) {
-            if (isRed) {
-                setPose(56.0, 134.0, 270.0)
-            } else {
-                setPose(104.0, 7.0, 90.0)
-            }
-        }
-
         if (autoAim) {
-            turret.setTargetAngle(targeter.getAimValue())
+            turret.setAngle(targeter.aimValue)
         } else {
-            turret.setTargetAngle(turret.turretRotations + operatorGamepad.left_trigger - operatorGamepad.right_trigger)
+            turret.setAngle(turret.getAngle() + operatorGamepad.left_trigger - operatorGamepad.right_trigger)
         }
 
         if (operatorGamepad.right_bumper) {
@@ -102,7 +91,6 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
         Telemetry.put("left stick x", -driverGamepad.left_stick_x)
         Telemetry.put("right stick x", -driverGamepad.right_stick_x)
 
-        turret.update()
         follower.update()
         flywheel.update()
         Telemetry.send()

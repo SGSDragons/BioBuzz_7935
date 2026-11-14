@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmode.tests;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -14,7 +13,6 @@ public class TurretJoystick extends LinearOpMode {
     @Override
     public void runOpMode() {
         Turret turret = new Turret(hardwareMap);
-        turret.rehome();
 
         waitForStart();
 
@@ -24,20 +22,16 @@ public class TurretJoystick extends LinearOpMode {
             double mag = Math.hypot(x, y);
 
             if (gamepad1.a) {
-                turret.setTargetAngle(0.0);
-            } else if (gamepad1.b) {
-                turret.rehome();
+                turret.setAngle(0.0);
             } else if (mag > STICK_ENGAGE) {
                 double targetAngle = Math.toDegrees(Math.atan2(x, y));
-                turret.setTargetAngle(targetAngle);
+                turret.setAngle(targetAngle);
             }
             Telemetry.put("stick x", x);
             Telemetry.put("stick y", y);
             Telemetry.put("mag", mag);
             Telemetry.put("A", gamepad1.a);
             Telemetry.send();
-
-            turret.update();
         }
     }
 }

@@ -32,17 +32,14 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     val follower: Follower = Constants.create(hardwareMap).also { it.setPose(start) }
     val targeter: Targeter = Targeter(follower, isRed)
     val flywheel: Flywheel = Flywheel(hardwareMap)
-    val turret: Turret = Turret(hardwareMap).also { it.rehome() }
-    val feederMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "feeder").also {
-        it.direction = DcMotorSimple.Direction.REVERSE
-    }
+    val turret: Turret = Turret(hardwareMap)
+    val feederMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "feeder").also { it.direction = DcMotorSimple.Direction.REVERSE }
     val intakeMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "intake")
 
     //endregion
 
     init {
         Scheduler.reset()
-        turret.rehome()
         activeAutomator = this
     }
 
@@ -80,11 +77,6 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
             }
         )
     }
-
-    val rehome: Command = newCommand(
-        start = { turret.rehome() },
-        endCondition = { !turret.isRehoming }
-    )
 
     val runIntake: Command = newCommand(
         start = { intakeMotor.power = 1.0 },
@@ -130,7 +122,7 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     fun update() {
         follower.update()
         Scheduler.execute()
-        turret.update()
+        turret.setAngle(targeter.aimValue)
         flywheel.update()
     }
     //endregion
