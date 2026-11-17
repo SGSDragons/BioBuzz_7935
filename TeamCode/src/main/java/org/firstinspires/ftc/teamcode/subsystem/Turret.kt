@@ -21,7 +21,8 @@ class Turret(hardwareMap: HardwareMap) {
         get() = minAngle..maxAngle
 
     fun setAngle(angle: Double) {
-        var newAngle = -angle
+        //var newAngle = -angle
+        var newAngle = 180.0
         while (newAngle > 0) {
             newAngle -= 360
         }

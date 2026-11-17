@@ -10,7 +10,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 @Config
-class Targeter(follower: Follower, isRed: Boolean) {
+class Targeter(follower: Follower, private val isRed: Boolean) {
     // named spot on field
     data class Target(
         val name: String,
@@ -31,36 +31,30 @@ class Targeter(follower: Follower, isRed: Boolean) {
         get() = Vector3(localizer.pose().x(), localizer.pose().y(), 11.0)
 
     private val velocityLookupTable: List<List<Double>> =
-        if (isRed) {
-            listOf(
-                     //   0      1        2       3       4       5
-                listOf(1580.0, 1575.0, 1550.0, 1575.0, 1580.0, 1750.0), // 0
-                listOf(1560.0, 1555.0, 1545.0, 1555.0, 1560.0, 1700.0), // 1
-                listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 2 Always low velocity, cant see hive
-                listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 3 Low velocity
-                listOf(1560.0, 1555.0, 1545.0, 1555.0, 1560.0, 1520.0), // 4
-                listOf(1580.0, 1575.0, 1550.0, 1575.0, 1580.0, 1750.0), // 5
-            )
-        } else {
-            listOf(
-                     //   0      1        2       3       4       5
-                listOf(1750.0, 1580.0, 1575.0, 1550.0, 1575.0, 1580.0), // 0
-                listOf(1700.0, 1560.0, 1555.0, 1545.0, 1555.0, 1560.0), // 1
-                listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 2 Always low velocity, cant see hive
-                listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 3 Low velocity
-                listOf(1700.0, 1560.0, 1555.0, 1545.0, 1555.0, 1560.0), // 4
-                listOf(1750.0, 1580.0, 1575.0, 1550.0, 1575.0, 1580.0), // 5
-            )
-        }
+        listOf(
+                 //   -1      0      1       2       3       4      5
+            listOf(1750.0, 1580.0, 1575.0, 1550.0, 1575.0, 1580.0, 1750.0), // 0
+            listOf(1700.0, 1560.0, 1555.0, 1545.0, 1555.0, 1560.0, 1700.0), // 1
+            listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 2 Always low velocity, cant see hive
+            listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 3 Low velocity
+            listOf(1700.0, 1560.0, 1555.0, 1545.0, 1555.0, 1560.0, 1700.0), // 4
+            listOf(1750.0, 1580.0, 1575.0, 1550.0, 1575.0, 1580.0, 1750.0), // 5
+        )
 
     private fun getVelocityFromXY(x: Double, y: Double): Double {
         val tileSize = 140.0 / 6.0
         val halfTile = tileSize / 2.0
 
-        val gridX = (x - halfTile) / tileSize
+        // Red uses columns 0..5 (indices 0..5)
+        // Blue shifts +1 to use columns 1..6 (indices 1..6)
+        val colOffset = if (isRed) 1.0 else 0.0
+        val minCol = if (isRed) 1 else 0
+        val maxCol = if (isRed) 5 else 4
+
+        val gridX = ((x - halfTile) / tileSize) + colOffset
         val gridY = (y - halfTile) / tileSize
 
-        val x0 = gridX.toInt().coerceIn(0, 4)
+        val x0 = gridX.toInt().coerceIn(minCol, maxCol)
         val y0 = gridY.toInt().coerceIn(0, 4)
 
         val x1 = x0 + 1
@@ -80,10 +74,10 @@ class Targeter(follower: Follower, isRed: Boolean) {
         return -(top + (bottom - top) * dy)
     }
 
+
     val flywheelSpeed: Double
         get() =
-            //getVelocityFromXY(localizer.pose().x(), localizer.pose().y())
-            -defaultVelocity
+            getVelocityFromXY(localizer.pose().x(), localizer.pose().y())
 
     fun addTarget(t: Target?) {
         targets.add(t!!)
