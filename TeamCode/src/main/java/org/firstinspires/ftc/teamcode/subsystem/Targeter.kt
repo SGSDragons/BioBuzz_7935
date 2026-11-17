@@ -27,8 +27,10 @@ class Targeter(follower: Follower, private val isRed: Boolean) {
     private val targets: MutableList<Target> = ArrayList()
     private var currentIndex = 0
 
-    val turretVector3: Vector3
+    private val turretVector3: Vector3
         get() = Vector3(localizer.pose().x(), localizer.pose().y(), 11.0)
+
+    var differential: Double = 0.0
 
     private val velocityLookupTable: List<List<Double>> =
         listOf(
@@ -77,7 +79,7 @@ class Targeter(follower: Follower, private val isRed: Boolean) {
 
     val flywheelSpeed: Double
         get() =
-            getVelocityFromXY(localizer.pose().x(), localizer.pose().y())
+            getVelocityFromXY(localizer.pose().x(), localizer.pose().y()) + differential
 
     fun addTarget(t: Target?) {
         targets.add(t!!)

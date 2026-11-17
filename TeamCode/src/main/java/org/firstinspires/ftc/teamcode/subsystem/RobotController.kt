@@ -44,18 +44,24 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
             targeter.setTarget(1)
         }
 
-        if (operatorGamepad.bWasPressed()) {
-            autoAim = !autoAim
+        if (operatorGamepad.dpadUpWasPressed()) {
+            targeter.differential += 50
+        } else if (operatorGamepad.dpadDownWasPressed()) {
+            targeter.differential -= 50
         }
 
-        if (operatorGamepad.start || driverGamepad.start) {
-            audioPlayer.errorSound()
+        if (operatorGamepad.bWasPressed()) {
+            autoAim = !autoAim
         }
 
         if (autoAim) {
             turret.setAngle(targeter.aimValue)
         } else {
             turret.setAngle(turret.getAngle() + operatorGamepad.left_trigger - operatorGamepad.right_trigger)
+        }
+
+        if (operatorGamepad.start || driverGamepad.start) {
+            audioPlayer.errorSound()
         }
 
         if (operatorGamepad.right_bumper) {
