@@ -14,15 +14,14 @@ class Turret(hardwareMap: HardwareMap) {
 
     @Config
     companion object {
-        @JvmField var minAngle: Double = -300.0
+        @JvmField var minAngle: Double = -270.0
         @JvmField var maxAngle: Double = -90.0
     }
     val validAngleRange
         get() = minAngle..maxAngle
 
     fun setAngle(angle: Double) {
-        //var newAngle = -angle
-        var newAngle = 180.0
+        var newAngle = -angle
         while (newAngle > 0) {
             newAngle -= 360
         }
