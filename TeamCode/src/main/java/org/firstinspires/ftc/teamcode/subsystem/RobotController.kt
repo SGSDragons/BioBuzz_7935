@@ -41,7 +41,7 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
                 startTime = System.currentTimeMillis().toDouble()
             }
 
-            var difference = System.currentTimeMillis() - startTime
+            val difference = System.currentTimeMillis() - startTime
             if (floor(difference / feedPulseRate)%3 == 2.0) {
                 intakeMotor.power = intakePower
             } else {

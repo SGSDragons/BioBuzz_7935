@@ -110,7 +110,6 @@ class Targeter(follower: Follower, private val isRed: Boolean) {
 
     // Constructor: gets the Localizer from the Follower
     init {
-
         // Placeholder positions. Replace with real field coordinates.
         if (isRed) {
             addTarget(Target("A", 58.0, 50.0))

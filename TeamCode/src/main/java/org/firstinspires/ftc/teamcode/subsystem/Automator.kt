@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
+import kotlin.math.floor
 
 fun Command.forTime(ms: Int): Command = race(this, waitMs(ms.toDouble()))
 private var activeAutomator: Automator? = null
@@ -53,13 +54,27 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         endCondition = { flywheel.velocity in (targeter.flywheelSpeed - 10)..(targeter.flywheelSpeed + 75) }
     )
 
-    fun shootBalls(balls: Int): Command {
+    @JvmField var feedPulseRate = 100;
+    var startTime: Double = -1.0;
+
+    fun shootBalls(balls: Int, timeout: Int): Command {
         var ballsShot = 0
 
         return newCommand(
             start = {
-                intakeMotor.power = 0.9
-                feederMotor.power = 0.7
+                feederMotor.power = 0.9
+
+                // Pulse the intake to the feeder to give the flywheel time to catch up
+                if (startTime == -1.0) {
+                    startTime = System.currentTimeMillis().toDouble()
+                }
+
+                val difference = System.currentTimeMillis() - startTime
+                if (floor(difference / feedPulseRate)%3 == 2.0) {
+                    intakeMotor.power = 1.0
+                } else {
+                    intakeMotor.power = 0.0
+                }
             },
             loop = {
                 flywheel.run(targeter.flywheelSpeed)
@@ -71,11 +86,12 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
                 flywheel.stop()
                 intakeMotor.power = 0.0
                 feederMotor.power = 0.0
+                startTime = -1.0
             },
             endCondition = {
                 ballsShot >= balls
             }
-        )
+        ).forTime(timeout)
     }
 
     val runIntake: Command = newCommand(
@@ -85,7 +101,7 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
 
     val shoot: Command = scheduledCommand(
         windupFlywheel,
-        shootBalls(3).forTime(3000)
+        shootBalls(4, 4000)
     )
     //endregion
 

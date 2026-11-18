@@ -5,8 +5,10 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.Telemetry
 import org.firstinspires.ftc.teamcode.Telemetry.put
+
 
 @Config
 class Flywheel(hardwareMap: HardwareMap) {
@@ -53,8 +55,30 @@ class Flywheel(hardwareMap: HardwareMap) {
         rightMotor.power = 0.0
     }
 
+    private val updateTimer = ElapsedTime()
+    var lastAvgVel: Double = -1.0
+
+    init {
+        updateTimer.reset();
+    }
+
     fun update() {
         reconfigure()
+
+        if (lastAvgVel == -1.0) {
+            lastAvgVel = velocity
+        } else if (updateTimer.milliseconds() >= 20 && velocity in (targeter.flywheelSpeed - 10)..(targeter.flywheelSpeed + 75)) {
+            ballShot = if (lastAvgVel-velocityLossWhenShot > velocity) {
+                true
+            } else {
+                false
+            }
+            lastAvgVel = velocity
+            updateTimer.reset();
+        }
+
+        put("flywheel/ballshot", ballShot)
+
         put("flywheel/target", targetSpeed)
 
         put(
@@ -65,7 +89,7 @@ class Flywheel(hardwareMap: HardwareMap) {
         put("flywheel/left/velocity", leftMotor.velocity)
         put("flywheel/right/position", rightMotor.currentPosition)
         put("flywheel/right/velocity", rightMotor.velocity)
-        put("flywheel/averageVelocity", this.velocity)
+        put("flywheel/averageVelocity", velocity)
     }
 
     @Config
@@ -76,5 +100,7 @@ class Flywheel(hardwareMap: HardwareMap) {
         @JvmField var kD: Double = 20.0
         @JvmField var LEFT_FORWARD: Boolean = true
         @JvmField var RIGHT_FORWARD: Boolean = true
+
+        @JvmField var velocityLossWhenShot: Int = 100
     }
 }
