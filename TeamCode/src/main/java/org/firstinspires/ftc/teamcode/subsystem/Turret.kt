@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystem
 import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
-import org.firstinspires.ftc.teamcode.Telemetry
 
 class Turret(hardwareMap: HardwareMap) {
     val servos: List<Servo> = listOf(

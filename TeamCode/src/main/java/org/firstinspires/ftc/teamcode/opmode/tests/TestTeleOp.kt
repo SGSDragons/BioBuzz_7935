@@ -3,13 +3,14 @@ package org.firstinspires.ftc.teamcode.opmode.tests
 import com.pedropathing.follower.Follower
 import com.pedropathing.follower.ManualDrive
 import com.pedropathing.math.Pose
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.pedro.Constants
-import org.firstinspires.ftc.teamcode.subsystem.FieldDrawing
 
 
 @TeleOp(name = "TeleOp Test", group = "Test")
+@Disabled
 class TestTeleOp: OpMode() {
     private lateinit var follower: Follower
 

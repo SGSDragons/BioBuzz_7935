@@ -1,17 +1,18 @@
 package org.firstinspires.ftc.teamcode.opmode.tests;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Telemetry;
+import org.firstinspires.ftc.teamcode.utils.Telemetry;
 
 @TeleOp(name="robot test", group="Test")
 @Config
+@Disabled
 public class RobotTest extends LinearOpMode {
     public static double kp = -50.0;
     public static double ki = 0.0;

@@ -13,9 +13,8 @@ import com.pedropathing.math.Pose
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
-import org.firstinspires.ftc.teamcode.Telemetry
+import org.firstinspires.ftc.teamcode.utils.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
-import kotlin.math.floor
 
 fun Command.forTime(ms: Int): Command = race(this, waitMs(ms.toDouble()))
 private var activeAutomator: Automator? = null

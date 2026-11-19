@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.subsystem
 import com.acmerobotics.dashboard.config.Config
 import com.pedropathing.follower.Follower
 import com.pedropathing.localization.Localizer
-import org.firstinspires.ftc.teamcode.Telemetry
-import org.firstinspires.ftc.teamcode.Vector3
+import org.firstinspires.ftc.teamcode.utils.Telemetry
+import org.firstinspires.ftc.teamcode.utils.Vector3
 import kotlin.math.atan2
 import kotlin.math.hypot
 import kotlin.math.max

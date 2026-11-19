@@ -1,13 +1,8 @@
-package org.firstinspires.ftc.teamcode.subsystem
+package org.firstinspires.ftc.teamcode.utils
 
-import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.canvas.Canvas
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.pedropathing.math.Pose
-import org.firstinspires.ftc.teamcode.Telemetry
 import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
 
 object FieldDrawing {
     private var prevBotPose: Pose = Pose.zero()

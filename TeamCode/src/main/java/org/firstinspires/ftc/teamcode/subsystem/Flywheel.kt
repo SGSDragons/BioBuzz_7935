@@ -5,9 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
-import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.Telemetry
-import org.firstinspires.ftc.teamcode.Telemetry.put
+import org.firstinspires.ftc.teamcode.utils.Telemetry.put
 
 
 @Config
@@ -33,7 +31,7 @@ class Flywheel(hardwareMap: HardwareMap) {
         targetSpeed = speed
         leftMotor.velocity = speed
         rightMotor.velocity = speed
-        Telemetry.put("flywheel/targetSpeed", targetSpeed)
+        put("flywheel/targetSpeed", targetSpeed)
     }
 
     val velocity: Double
