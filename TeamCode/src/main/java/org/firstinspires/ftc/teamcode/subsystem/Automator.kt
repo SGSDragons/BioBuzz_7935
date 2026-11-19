@@ -57,16 +57,12 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         }
     )
 
-    @JvmField var feedPulseRate = 100;
-    var startTime: Double = -1.0;
-
-    fun shootBalls(balls: Int, timeout: Int): Command {
-        var ballsShot = 0
+    val feedPulseRate = 100;
+    fun runFlywheel(): Command {
         var startTime = -1L
 
         return newCommand(
             start = {
-                ballsShot = 0
                 startTime = System.currentTimeMillis()
                 feederMotor.power = 0.9
             },
@@ -76,16 +72,14 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
                 // Pulse the intake 1/3 of the time to give the flywheel time to recover
                 val elapsed = System.currentTimeMillis() - startTime
                 intakeMotor.power = if ((elapsed / feedPulseRate) % 3 == 2L) 1.0 else 0.0
-
-                if (flywheel.wasBallShot()) ballsShot++
             },
             end = {
                 flywheel.stop()
                 intakeMotor.power = 0.0
                 feederMotor.power = 0.0
             },
-            endCondition = { ballsShot >= balls }
-        ).forTime(timeout)
+            endCondition = { false }
+        )
     }
 
     val runIntake: Command = newCommand(
@@ -96,7 +90,7 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     val shoot
         get() = scheduledCommand(
             windupFlywheel,
-            shootBalls(4, 4000)
+            runFlywheel().forTime(3000)
         )
     //endregion
 
@@ -134,7 +128,7 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         follower.update()
         Scheduler.execute()
         turret.setAngle(targeter.aimValue)
-        flywheel.update(targeter.flywheelSpeed)
+        flywheel.update()
     }
     //endregion
 

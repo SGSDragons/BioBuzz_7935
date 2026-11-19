@@ -105,9 +105,9 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
             driverGamepad.bWasPressed() -> follower.setPose(FieldPoints.rightFlower)
             driverGamepad.yWasPressed() -> follower.setPose(FieldPoints.farFlower)
             driverGamepad.dpadUpWasPressed() -> follower.setHeading(0.0)
-            driverGamepad.dpadDownWasPressed() -> follower.setHeading(180.0)
-            driverGamepad.dpadLeftWasPressed() -> follower.setHeading(90.0)
-            driverGamepad.dpadRightWasPressed() -> follower.setHeading(-90.0)
+            driverGamepad.dpadDownWasPressed() -> follower.setHeading(Math.toRadians(180.0))
+            driverGamepad.dpadLeftWasPressed() -> follower.setHeading(Math.toRadians(90.0))
+            driverGamepad.dpadRightWasPressed() -> follower.setHeading(Math.toRadians(-90.0))
         }
 
         Telemetry.put("left stick y", -driverGamepad.left_stick_y)
@@ -115,7 +115,7 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
         Telemetry.put("right stick x", -driverGamepad.right_stick_x)
 
         follower.update()
-        flywheel.update(targeter.flywheelSpeed)
+        flywheel.update()
         Telemetry.send()
     }
 }

@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.Telemetry.put
 
 @Config
 class Flywheel(hardwareMap: HardwareMap) {
-    private var ballShot = false
     private val leftMotor: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "leftshooter")
     private val rightMotor: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "rightshooter")
     private var targetSpeed = 0.0
@@ -40,47 +39,14 @@ class Flywheel(hardwareMap: HardwareMap) {
     val velocity: Double
         get() = (leftMotor.velocity + rightMotor.velocity) / 2
 
-    fun wasBallShot(): Boolean {
-        if (ballShot) {
-            ballShot = false
-            return true
-        } else {
-            return false
-        }
-    }
-
     fun stop() {
         targetSpeed = 0.0
         leftMotor.power = 0.0
         rightMotor.power = 0.0
     }
 
-    private val updateTimer = ElapsedTime()
-    var lastAvgVel: Double = -1.0
-
-    init {
-        updateTimer.reset();
-    }
-
-    var running: Boolean = false
-    fun update(flywheelTarget: Double) {
+    fun update() {
         reconfigure()
-
-        if (velocity in (flywheelTarget - 10)..(flywheelTarget + 25)) {
-            running = true
-        } else if (velocity in -5.0..5.0) {
-            running = false
-        }
-
-        if (lastAvgVel == -1.0) {
-            lastAvgVel = velocity
-        } else if (updateTimer.milliseconds() >= 20) {
-            ballShot = lastAvgVel-velocityLossWhenShot > velocity && running
-            lastAvgVel = velocity
-            updateTimer.reset();
-        }
-
-        put("flywheel/ballshot", ballShot)
 
         put("flywheel/target", targetSpeed)
 

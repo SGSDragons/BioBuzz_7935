@@ -21,7 +21,7 @@ class AutoRed1: OpMode() {
     private val path1 = poseFactory.of(9.8044, 7.1451, 270.0)
     private val path1Control1 = poseFactory.of(33.3401, 36.7588, 0.0)
     private val point2Start = poseFactory.of(9.8044, 7.1451, 270.0)
-    private val point2 = poseFactory.of(57.9274, 128.9949, 90.0)
+    private val point2 = poseFactory.of(57.9274, 126.9949, 90.0)
     private val point2Control1 = poseFactory.of(34.2401, 43.7758, 0.0)
     private val point2Control2 = poseFactory.of(6.9299, 138.3176, 0.0)
     private val point2Control3 = poseFactory.of(59.7605, 104.8926, 0.0)
