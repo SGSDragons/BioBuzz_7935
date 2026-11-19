@@ -104,5 +104,23 @@ public class Targeter {
         return a;
     }
 
+    // Wrap an angle into -PI..PI. Separate from wrap() above, which uses the turret's range.
+    private double wrapPi(double a) {
+        while (a > Math.PI) a -= 2 * Math.PI;
+        while (a < -Math.PI) a += 2 * Math.PI;
+        return a;
+    }
+
+    /** Field angle (radians) the robot must face to point at the target. */
+    public double getBodyHeadingToTarget() {
+        Pose p = localizer.pose();
+        Target t = getCurrentTarget();
+        return Math.atan2(t.y - p.y(), t.x - p.x());
+    }
+
+    /** How far the robot must rotate to face the target (radians, -PI..PI). */
+    public double getBodyHeadingError() {
+        return wrapPi(getBodyHeadingToTarget() - localizer.pose().heading());
+    }
 }
 

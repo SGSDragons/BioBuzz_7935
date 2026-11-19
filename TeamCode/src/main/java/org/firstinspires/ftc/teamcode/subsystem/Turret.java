@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Telemetry;
 
-import java.util.function.Supplier;
 
 /**
  * A turret driven by a ServoMotor through a gear. You give it a target angle
@@ -102,9 +101,9 @@ public class Turret {
     public void update() {
         servo.update();
         if (!rehoming) {
-            servo.gotoPosition(target/turretRevsPerServoRev);
+            servo.gotoPosition(target / turretRevsPerServoRev);
         } else if (this.magSwitch.getState()) {
-            servo.setPower(0.4*Math.signum(turretRevsPerServoRev));
+            servo.setPower(0.4 * Math.signum(turretRevsPerServoRev));
         } else {
             servo.setPower(0.0);
             servo.rezero();
