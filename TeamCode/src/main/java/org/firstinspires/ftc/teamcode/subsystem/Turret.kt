@@ -41,8 +41,4 @@ class Turret(hardwareMap: HardwareMap) {
 
         //FieldDrawing.updateTurretTarget()
     }
-
-    fun getAngle(): Double {
-        return (servos[0].position * 360)
-    }
 }

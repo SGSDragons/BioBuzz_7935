@@ -1,21 +1,26 @@
 package org.firstinspires.ftc.teamcode.subsystem
 
+import android.content.Context
 import com.qualcomm.ftccommon.SoundPlayer
-import com.qualcomm.robotcore.hardware.HardwareMap
 import java.io.File
 
-class AudioPlayer(val hardwareMap: HardwareMap) {
-    fun errorSound() {
-        val context = hardwareMap.appContext
-
-        val soundFile = File(context.cacheDir, "factorio-destroyed.ogg")
-
-        context.assets.open("sounds/factorio-destroyed.ogg").use { input ->
-            soundFile.outputStream().use { output ->
-                input.copyTo(output)
+class AudioPlayer(private val context: Context) {
+    private fun loadAsset(name: String): File =
+        File(context.cacheDir, name).also { file ->
+            if (!file.exists() || file.length() == 0L) {
+                context.assets.open("sounds/$name").use { input ->
+                    file.outputStream().use { input.copyTo(it) }
+                }
             }
         }
 
-        SoundPlayer.getInstance().startPlaying(context, soundFile)
+    val factorioDestroyed: File = loadAsset("factorio-destroyed.ogg")
+
+    init {
+        factorioDestroyed
+    }
+
+    fun playSound(sound: File) {
+        SoundPlayer.getInstance().startPlaying(context, sound)
     }
 }

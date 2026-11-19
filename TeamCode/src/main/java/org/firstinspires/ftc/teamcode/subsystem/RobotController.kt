@@ -21,7 +21,7 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
     private val turret: Turret = Turret(hardwareMap)
     private val targeter: Targeter = Targeter(follower, isRed)
     private val flywheel = Flywheel(hardwareMap)
-    private val audioPlayer = AudioPlayer(hardwareMap)
+    private val audioPlayer = AudioPlayer(hardwareMap.appContext)
 
     private var autoAim: Boolean = true
 
@@ -74,11 +74,11 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
         if (autoAim) {
             turret.setAngle(targeter.aimValue)
         } else {
-            turret.setAngle(turret.getAngle() + operatorGamepad.left_trigger - operatorGamepad.right_trigger)
+            turret.setAngle(180.0)
         }
 
         if (operatorGamepad.start || driverGamepad.start) {
-            audioPlayer.errorSound()
+            audioPlayer.playSound(audioPlayer.factorioDestroyed)
         }
 
         if (operatorGamepad.right_bumper) {
@@ -115,7 +115,7 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
         Telemetry.put("right stick x", -driverGamepad.right_stick_x)
 
         follower.update()
-        flywheel.update()
+        flywheel.update(targeter.flywheelSpeed)
         Telemetry.send()
     }
 }

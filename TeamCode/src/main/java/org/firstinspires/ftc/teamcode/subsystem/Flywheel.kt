@@ -62,17 +62,20 @@ class Flywheel(hardwareMap: HardwareMap) {
         updateTimer.reset();
     }
 
-    fun update() {
+    var running: Boolean = false
+    fun update(flywheelTarget: Double) {
         reconfigure()
+
+        if (velocity in (flywheelTarget - 10)..(flywheelTarget + 25)) {
+            running = true
+        } else if (velocity in -5.0..5.0) {
+            running = false
+        }
 
         if (lastAvgVel == -1.0) {
             lastAvgVel = velocity
-        } else if (updateTimer.milliseconds() >= 20 && velocity in (targeter.flywheelSpeed - 10)..(targeter.flywheelSpeed + 75)) {
-            ballShot = if (lastAvgVel-velocityLossWhenShot > velocity) {
-                true
-            } else {
-                false
-            }
+        } else if (updateTimer.milliseconds() >= 20) {
+            ballShot = lastAvgVel-velocityLossWhenShot > velocity && running
             lastAvgVel = velocity
             updateTimer.reset();
         }
@@ -100,7 +103,6 @@ class Flywheel(hardwareMap: HardwareMap) {
         @JvmField var kD: Double = 20.0
         @JvmField var LEFT_FORWARD: Boolean = true
         @JvmField var RIGHT_FORWARD: Boolean = true
-
         @JvmField var velocityLossWhenShot: Int = 100
     }
 }
