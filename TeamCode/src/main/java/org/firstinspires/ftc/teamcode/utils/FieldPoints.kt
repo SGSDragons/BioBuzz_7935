@@ -1,12 +1,11 @@
-package org.firstinspires.ftc.teamcode.subsystem
+package org.firstinspires.ftc.teamcode.utils
 
 import com.pedropathing.api.PoseFactory
-import com.pedropathing.math.Pose
 
 object FieldPoints {
 
     // Coordinates pulled from Pedro.
-    val poseFactory = PoseFactory.degrees()
+    val poseFactory: PoseFactory = PoseFactory.degrees()
 
     // All poses assume the robot is facing the wall to grab pollen
     val nearFlower = poseFactory.of(8.0, 56.0, 180.0)

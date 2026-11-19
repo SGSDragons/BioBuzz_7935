@@ -1,18 +1,14 @@
-package org.firstinspires.ftc.teamcode.subsystem
+package org.firstinspires.ftc.teamcode.utils
 
-import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.canvas.Canvas
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.pedropathing.math.Pose
-import org.firstinspires.ftc.teamcode.Telemetry
 import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
 
 object FieldDrawing {
     private var prevBotPose: Pose = Pose.zero()
     private var prevTurret: Double = 0.0
-    private var prevTarget: Double = 0.0
+    private var targetX: Double = 0.0
+    private var targetY: Double = 0.0
     private var needsUpdate = true
 
     fun updateBotPose(pose: Pose) {
@@ -26,17 +22,18 @@ object FieldDrawing {
             needsUpdate = true;
         }
     }
-    fun updateTurretRotations(rotations: Double) {
-        if (abs(rotations - prevTurret) > Math.toDegrees(5.0)) {
+    fun updateTurretRotations(angle: Double) {
+        if (abs(angle - prevTurret) > Math.toDegrees(5.0)) {
             needsUpdate = true
-            prevTurret = rotations
+            prevTurret = angle
         }
     }
 
-    fun updateTurretTarget(rotations: Double) {
-        if (abs(rotations - prevTarget) > Math.toDegrees(5.0)) {
+    fun updateTurretTarget(x: Double, y: Double) {
+        if (x != targetX || y != targetY) {
             needsUpdate = true
-            prevTarget = rotations
+            targetX = x
+            targetY = y
         }
     }
 
@@ -65,8 +62,10 @@ object FieldDrawing {
         )
 
         // Draw the way that the turret is pointing
-        val worldAngle = Math.PI * 2 * prevTurret + robotHeading
-        val length = 13.0
+        val worldAngle = Math.toRadians(prevTurret) + robotHeading
+        val length = 5.0
+
+
 
         field.setStrokeWidth(2)
 //            80.0, 80.0, 83.0, 83.0)

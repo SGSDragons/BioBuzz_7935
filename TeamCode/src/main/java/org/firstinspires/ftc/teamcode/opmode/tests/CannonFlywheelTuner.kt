@@ -5,9 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.acmerobotics.dashboard.config.Config
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import kotlin.jvm.java
 
 @TeleOp(name = "Cannon Flywheel Tuner", group = "Test")
+@Disabled
 class CannonFlywheelTuner: OpMode() {
 
     @Config

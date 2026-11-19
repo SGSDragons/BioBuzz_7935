@@ -7,24 +7,28 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.HardwareMap
-import org.firstinspires.ftc.teamcode.Telemetry
+import org.firstinspires.ftc.teamcode.utils.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
+import org.firstinspires.ftc.teamcode.utils.AudioPlayer
+import org.firstinspires.ftc.teamcode.utils.FieldPoints
+import kotlin.math.floor
 
 class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, val hardwareMap: HardwareMap, val isRed: Boolean) {
-    val feederMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "feeder").also {
-        it.direction = DcMotorSimple.Direction.REVERSE
-    }
+    val feederMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "feeder").also { it.direction = DcMotorSimple.Direction.REVERSE }
     val intakeMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "intake")
-    val intakePower = 0.9
+    val intakePower = 1.0
     val feederPower = 1.0
 
-    // Reuse an existing follower, since it could be coming from Autonomous
     private val follower: Follower = Constants.create(hardwareMap)
-    private val turret: Turret = Turret(hardwareMap).also { it.rehome() }
+    private val turret: Turret = Turret(hardwareMap)
     private val targeter: Targeter = Targeter(follower, isRed)
     private val flywheel = Flywheel(hardwareMap)
+    private val audioPlayer = AudioPlayer(hardwareMap.appContext)
 
     private var autoAim: Boolean = true
+
+    @JvmField var feedPulseRate = 100;
+    var startTime: Double = -1.0;
 
     fun setPose(x: Double, y: Double, headingDegrees: Double) {
         follower.localizer.setPose(Pose(x, y, Math.toRadians(headingDegrees)))
@@ -32,11 +36,24 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
 
     fun update() {
         if (operatorGamepad.left_bumper) {
-            intakeMotor.power = intakePower
             feederMotor.power = feederPower
+
+            // Pulse the intake to the feeder to give the flywheel time to catch up
+            if (startTime == -1.0) {
+                startTime = System.currentTimeMillis().toDouble()
+            }
+
+            val difference = System.currentTimeMillis() - startTime
+            if (floor(difference / feedPulseRate)%3 == 2.0) {
+                intakeMotor.power = intakePower
+            } else {
+                intakeMotor.power = 0.0
+            }
         } else {
             intakeMotor.power = -operatorGamepad.left_stick_y.toDouble()
             feederMotor.power = -operatorGamepad.right_stick_y.toDouble()
+
+            startTime = -1.0;
         }
 
         // Operator Controls
@@ -46,17 +63,24 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
             targeter.setTarget(1)
         }
 
-        if (operatorGamepad.aWasPressed()) {
-            turret.rehome()
+        if (operatorGamepad.dpadUpWasPressed()) {
+            targeter.differential += 50
+        } else if (operatorGamepad.dpadDownWasPressed()) {
+            targeter.differential -= 50
         }
+
         if (operatorGamepad.bWasPressed()) {
             autoAim = !autoAim
         }
 
         if (autoAim) {
-            turret.setTargetAngle(targeter.getAimValue())
+            turret.setAngle(targeter.aimValue)
         } else {
-            turret.setTargetAngle(turret.turretRotations + operatorGamepad.left_trigger - operatorGamepad.right_trigger)
+            turret.setAngle(180.0)
+        }
+
+        if (operatorGamepad.start || driverGamepad.start) {
+            audioPlayer.playSound(audioPlayer.factorioDestroyed)
         }
 
         if (operatorGamepad.right_bumper) {
@@ -83,16 +107,15 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
             driverGamepad.bWasPressed() -> follower.setPose(FieldPoints.rightFlower)
             driverGamepad.yWasPressed() -> follower.setPose(FieldPoints.farFlower)
             driverGamepad.dpadUpWasPressed() -> follower.setHeading(0.0)
-            driverGamepad.dpadDownWasPressed() -> follower.setHeading(180.0)
-            driverGamepad.dpadLeftWasPressed() -> follower.setHeading(90.0)
-            driverGamepad.dpadRightWasPressed() -> follower.setHeading(-90.0)
+            driverGamepad.dpadDownWasPressed() -> follower.setHeading(Math.toRadians(180.0))
+            driverGamepad.dpadLeftWasPressed() -> follower.setHeading(Math.toRadians(90.0))
+            driverGamepad.dpadRightWasPressed() -> follower.setHeading(Math.toRadians(-90.0))
         }
 
         Telemetry.put("left stick y", -driverGamepad.left_stick_y)
         Telemetry.put("left stick x", -driverGamepad.left_stick_x)
         Telemetry.put("right stick x", -driverGamepad.right_stick_x)
 
-        turret.update()
         follower.update()
         flywheel.update()
         Telemetry.send()

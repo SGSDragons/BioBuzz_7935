@@ -23,6 +23,7 @@
 package org.firstinspires.ftc.teamcode.opmode.tests;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -61,8 +62,7 @@ For support, contact tech@gobilda.com
  */
 
 @TeleOp(name="Pinpoint Test", group="Test")
-//@Disabled
-
+@Disabled
 public class PinpointTest extends LinearOpMode {
 
     GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer

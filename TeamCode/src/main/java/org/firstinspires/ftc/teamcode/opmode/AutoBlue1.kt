@@ -4,9 +4,8 @@ import com.pedropathing.api.Paths
 import com.pedropathing.api.PoseFactory
 import com.pedropathing.paths.Path
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
-import org.firstinspires.ftc.teamcode.Telemetry
+import org.firstinspires.ftc.teamcode.utils.Telemetry
 import org.firstinspires.ftc.teamcode.subsystem.Automator
 import org.firstinspires.ftc.teamcode.subsystem.run
 

@@ -1,12 +1,12 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.utils
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import org.firstinspires.ftc.teamcode.subsystem.FieldDrawing
 
 object Telemetry {
     private var packet = TelemetryPacket(false)
     private var lastTick = 0L
+
 
     @JvmStatic
     fun put(key: String, value: Any) {

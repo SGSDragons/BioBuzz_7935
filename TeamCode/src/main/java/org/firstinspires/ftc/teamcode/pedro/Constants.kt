@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.pedro
 
 import com.pedropathing.algorithm.Foresight
 import com.pedropathing.algorithm.ForesightConfig
+import com.pedropathing.config.Configuration
 import com.pedropathing.controllers.Controller
 import com.pedropathing.follower.Follower
 import com.pedropathing.math.Matrix
@@ -51,45 +52,47 @@ object Constants {
         c.offsetUnits.set(DistanceUnit.INCH)
     }
 
-    val foresightConfig = ForesightConfig{ c: ForesightConfig? ->
-            val primaryTranslationalForward = Controller.proportional(0.5250084248240626)
-            val secondaryTranslationalForward = Controller.proportional(0.19397658448901356)
-            val primaryTranslationalLateral = Controller.proportional(1.1223768223042243)
-            val secondaryTranslationalLateral = Controller.proportional(0.4146882453803767)
+    var foresightConfig: ForesightConfig = ForesightConfig(
+        Configuration { c: ForesightConfig? ->
+            val primaryTranslationalForward = Controller.proportional(0.4779313492769102)
+            val secondaryTranslationalForward = Controller.proportional(0.17658286299696688)
+            val primaryTranslationalLateral = Controller.proportional(0.8115369768393099)
+            val secondaryTranslationalLateral = Controller.proportional(0.29984122827473164)
 
-        c!!.forwardTranslational.set(
-            Controller.piecewise(secondaryTranslationalForward)
-                .put(2.5, primaryTranslationalForward)
-        )
-        c.strafeTranslational.set(
-            Controller.piecewise(secondaryTranslationalLateral)
-                .put(2.5, primaryTranslationalLateral)
-        )
-
-        c.coast.set(Controller.proportionalFeedforward(0.02028701283076027))
-        c.brake.set(Controller.proportionalFeedforward(0.01724396090614623))
-
-        c.headingFeedback.set(Controller.proportional(2.6204420331818055))
-        c.headingBrakeCoefficients.set(
-            Vector2D.cartesian(
-                0.032507246489180255,
-                0.014917238139437527
+            c!!.forwardTranslational.set(
+                Controller.piecewise(secondaryTranslationalForward)
+                    .put(2.5, primaryTranslationalForward)
             )
-        )
-
-        c.linearBrakeCoefficients.set(Matrix.diag(0.03978624919415515, 0.012549843364495822))
-        c.quadraticBrakeCoefficients.set(
-            Matrix.diag(
-                0.0030391409197645506,
-                0.004028811023955176
+            c.strafeTranslational.set(
+                Controller.piecewise(secondaryTranslationalLateral)
+                    .put(2.5, primaryTranslationalLateral)
             )
-        )
 
-        c.maxAchievableForwardVelocity.set(51.526981803468075)
-        c.maxAchievableStrafeVelocity.set(46.38879405290293)
-        c.naturalForwardDeceleration.set(50.32116921646626)
-        c.naturalStrafeDeceleration.set(65.69426386210297)
-    }
+            c.coast.set(Controller.proportionalFeedforward(0.010710627108203731))
+            c.brake.set(Controller.proportionalFeedforward(0.00910403304197317))
+
+            c.headingFeedback.set(Controller.proportional(1.564840370351443))
+            c.headingBrakeCoefficients.set(
+                Vector2D.cartesian(
+                    0.08061409865391288,
+                    0.003593606680430538
+                )
+            )
+
+            c.linearBrakeCoefficients.set(Matrix.diag(0.13874849728306451, 0.0854505962841659))
+            c.quadraticBrakeCoefficients.set(
+                Matrix.diag(
+                    0.002146967388328984,
+                    0.001993854137230208
+                )
+            )
+
+            c.maxAchievableForwardVelocity.set(77.19701057620246)
+            c.maxAchievableStrafeVelocity.set(61.95774734049519)
+            c.naturalForwardDeceleration.set(36.716646571179425)
+            c.naturalStrafeDeceleration.set(70.02150414448376)
+        }
+    )
 
     fun newDrivetrain(hardwaremap: HardwareMap) = Mecanum(hardwaremap, drivetrainConfig)
     fun newLocalizer(hardwaremap: HardwareMap) = PlottingLocalizer(PinpointLocalizer(hardwaremap, localizerConfig))

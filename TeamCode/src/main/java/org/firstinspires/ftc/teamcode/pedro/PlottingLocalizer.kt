@@ -7,7 +7,7 @@ import com.pedropathing.localization.MotionState
 import com.pedropathing.math.Pose
 import com.pedropathing.math.Twist
 import com.pedropathing.math.Velocity
-import org.firstinspires.ftc.teamcode.subsystem.FieldDrawing
+import org.firstinspires.ftc.teamcode.utils.FieldDrawing
 
 class PlottingLocalizer(val pinpoint: Localizer): Localizer {
 
