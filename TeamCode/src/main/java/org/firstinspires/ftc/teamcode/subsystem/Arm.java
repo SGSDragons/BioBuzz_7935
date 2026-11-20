@@ -8,7 +8,7 @@ public class Arm {
     private static final double DOWN_POSITION = 0.6;  // under the flower, TUNE
 
     private final Servo servo;
-    private Servo servo2 = null; // second servo, added later
+    private final Servo servo2 = null; // second servo, added later
     private boolean down = false;
 
     public Arm(HardwareMap hardwareMap) {
@@ -23,7 +23,6 @@ public class Arm {
         this.down = down;
         double pos = down ? DOWN_POSITION : UP_POSITION;
         servo.setPosition(pos);
-        if (servo2 != null) servo2.setPosition(pos);
     }
 
     public void toggle() {
@@ -34,3 +33,4 @@ public class Arm {
         return down;
     }
 }
+//hopefully it will work
