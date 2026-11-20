@@ -24,12 +24,9 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
     private val targeter: Targeter = Targeter(follower, isRed)
     private val flywheel = Flywheel(hardwareMap)
     private val intakeFeeder = IntakeFeeder(hardwareMap)
+    private val ramp = Ramp(hardwareMap)
     private val audioPlayer = AudioPlayer(hardwareMap.appContext)
-
     private var autoAim: Boolean = true
-
-    @JvmField var feedPulseRate = 100;
-    var startTime: Double = -1.0;
 
     fun setPose(x: Double, y: Double, headingDegrees: Double) {
         follower.localizer.setPose(Pose(x, y, Math.toRadians(headingDegrees)))
@@ -40,7 +37,7 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
             intakeFeeder.feedShooter()
         } else {
             // Feeder need runs slower
-            intakeFeeder.setPowers(-operatorGamepad.left_stick_y.toDouble(), -operatorGamepad.right_stick_y.toDouble()/2.0)
+            intakeFeeder.setPowers(-operatorGamepad.left_stick_y.toDouble(), -operatorGamepad.right_stick_y.toDouble())
         }
 
         // Operator Controls
@@ -65,10 +62,17 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
         } else {
             turret.setAngle(180.0)
         }
-        if (follower.pose().y() <= 70.75) {
+        if (follower.pose().y() >= 70.75) {
             targeter.setTarget(1)
         } else {
             targeter.setTarget(0)
+        }
+
+        if (operatorGamepad.x) {
+            ramp.lower()
+        }
+        if (operatorGamepad.y) {
+            ramp.raise()
         }
 
         if (operatorGamepad.start || driverGamepad.start) {
