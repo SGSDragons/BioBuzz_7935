@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
 import org.firstinspires.ftc.teamcode.utils.AudioPlayer
-import org.firstinspires.ftc.teamcode.utils.FieldPoints
 import kotlin.math.floor
 
 class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, val hardwareMap: HardwareMap, val isRed: Boolean) {

@@ -14,7 +14,7 @@ class TeleOpBlue1: OpMode() {
     }
 
     override fun start() {
-        robotController.setPose(125.7298, 40.7906, 270.0)
+        robotController.setPose(132.82, 29.74, 180.0)
     }
 
     override fun loop() {

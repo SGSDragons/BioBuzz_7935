@@ -36,6 +36,8 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     val feederMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "feeder").also { it.direction = DcMotorSimple.Direction.REVERSE }
     val intakeMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "intake")
 
+    val ramp: Ramp = Ramp(hardwareMap)
+
     //endregion
 
     init {
@@ -86,10 +88,18 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         end = { intakeMotor.power = 0.0 }
     )
 
+    val lowerRamp: Command = newCommand(
+        start = { ramp.lower() }
+    )
+
+    val raiseRamp: Command = newCommand(
+        start = { ramp.raise() }
+    )
+
     val shoot
         get() = scheduledCommand(
             windupFlywheel,
-            runFlywheel().forTime(3000)
+            runFlywheel().forTime(2000)
         )
     //endregion
 

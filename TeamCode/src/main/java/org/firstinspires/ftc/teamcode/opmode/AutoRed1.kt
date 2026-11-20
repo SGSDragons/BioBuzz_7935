@@ -39,15 +39,15 @@ class AutoRed1: OpMode() {
         automator = Automator(hardwareMap, start, true)
     }
 
-    override fun start() {
-        val schedule = automator.scheduledCommand(
-            automator.shoot,
-            automator.concurrentCommand(automator.goto(path1()), automator.runIntake.forTime(4000)),
-            automator.goto(path2()),
-            automator.shoot,
-            automator.goto(path3())
-        )
+    val schedule = automator.scheduledCommand(
+        automator.shoot,
+        automator.concurrentCommand(automator.goto(path1()), automator.runIntake.forTime(4000)),
+        automator.goto(path2()),
+        automator.shoot,
+        automator.goto(path3())
+    )
 
+    override fun start() {
         schedule.run()
     }
 
