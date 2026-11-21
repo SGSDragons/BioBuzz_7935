@@ -36,7 +36,7 @@ class IntakeFeeder(hardwareMap: HardwareMap) {
         }
 
         val difference = System.currentTimeMillis() - startTime
-        if (floor(difference / pulseTime)%pulseRate == 6.0) {
+        if (floor(difference / pulseTime)%pulseRate == pulseRate-1) {
             intakeMotor.power = intakePower
         } else {
             intakeMotor.power = 0.0
@@ -52,8 +52,8 @@ class IntakeFeeder(hardwareMap: HardwareMap) {
     companion object {
         @JvmField var intakePower: Double = 1.0
         @JvmField var feederPower: Double = 1.0
-        @JvmField var pulseTime = 50;
-        @JvmField var pulseRate = 7.0;
+        @JvmField var pulseTime = 100;
+        @JvmField var pulseRate = 5.0;
         @JvmField var detectPollen = 2.0;
     }
 }
