@@ -22,8 +22,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 abstract class TwelveBallAuto(val isRed: Boolean) : LinearOpMode() {
-    private lateinit var follower: Follower
-
     val poseFactory: PoseFactory = PoseFactory.degrees().let {
         if (isRed) {
             it.mirrorAroundPoint(70.75, 70.75)
@@ -98,7 +96,6 @@ abstract class TwelveBallAuto(val isRed: Boolean) : LinearOpMode() {
     override fun runOpMode() {
 
         val automator = Automator(hardwareMap, start, isRed)
-        automator.aim()
 
         waitForStart()
         schedule(autoRoutine(automator))

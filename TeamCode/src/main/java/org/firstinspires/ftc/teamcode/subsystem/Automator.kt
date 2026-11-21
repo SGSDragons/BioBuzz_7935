@@ -35,7 +35,6 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     val turret: Turret = Turret(hardwareMap)
     val feederMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "feeder").also { it.direction = DcMotorSimple.Direction.REVERSE }
     val intakeMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "intake")
-
     val ramp: Ramp = Ramp(hardwareMap)
 
     //endregion
@@ -43,6 +42,7 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     init {
         Scheduler.reset()
         activeAutomator = this
+        turret.setAngle(targeter.aimValue)
     }
 
     //region Commands
@@ -83,21 +83,15 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         )
     }
 
-    val runIntake: Command = newCommand(
-        start = { intakeMotor.power = 1.0 },
-        end = { intakeMotor.power = 0.0 }
-    )
+    val startIntake: Command = instantCommand { intakeMotor.power = 1.0 }
 
-    val lowerRamp: Command = newCommand(
-        start = { ramp.lower() }
-    )
+    val stopIntake: Command = instantCommand { intakeMotor.power = 0.0 }
 
-    val raiseRamp: Command = newCommand(
-        start = { ramp.raise() }
-    )
+    val lowerRamp: Command = instantCommand { ramp.lower() }
 
-    val shoot
-        get() = scheduledCommand(
+    val raiseRamp: Command = instantCommand { ramp.raise() }
+
+    val shoot = scheduledCommand(
             windupFlywheel,
             runFlywheel().forTime(2000)
         )
@@ -116,8 +110,10 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         return parallel(*commands)
     }
 
-    fun firstToFinishCommand(vararg commands: Command): Command {
-        return race(*commands)
+    fun instantCommand(op: () -> Unit): Command {
+        return Command.build()
+            .setStart { op }
+            .setDone { true }
     }
 
     fun newCommand(
