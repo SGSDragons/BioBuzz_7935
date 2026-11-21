@@ -13,6 +13,8 @@ class Flywheel(hardwareMap: HardwareMap) {
     private val leftMotor: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "leftshooter")
     private val rightMotor: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "rightshooter")
     private var targetSpeed = 0.0
+    private var lastLeftVelocity = 0.0
+    private var lastRightVelocity = 0.0
 
     init {
         leftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
@@ -27,15 +29,21 @@ class Flywheel(hardwareMap: HardwareMap) {
         rightMotor.setVelocityPIDFCoefficients(kP, kI, kD, kF)
     }
 
+    // Use cached values recorded on update to avoid many slow velocity requests
+    val velocity: Double get() = (lastLeftVelocity + lastRightVelocity) / 2
+
     fun run(speed: Double) {
-        targetSpeed = speed
-        leftMotor.velocity = speed
-        rightMotor.velocity = speed
-        put("flywheel/targetSpeed", targetSpeed)
+        if (targetSpeed != speed) {
+            targetSpeed = speed
+            leftMotor.velocity = speed
+            rightMotor.velocity = speed
+        }
     }
 
-    val velocity: Double
-        get() = (leftMotor.velocity + rightMotor.velocity) / 2
+    fun atTargetSpeed(): Boolean {
+        val error = targetSpeed - velocity
+        return -10.0 <= error && error < 25.0
+    }
 
     fun stop() {
         targetSpeed = 0.0
@@ -44,18 +52,18 @@ class Flywheel(hardwareMap: HardwareMap) {
     }
 
     fun update() {
-        reconfigure()
+        reconfigure() // Disable this in comp
+        lastLeftVelocity = leftMotor.velocity
+        lastRightVelocity = rightMotor.velocity
 
         put("flywheel/target", targetSpeed)
 
         put(
-            "flywheel/left/position",
+            "flywheel/left/kP",
             leftMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).p
         )
-        put("flywheel/left/position", leftMotor.currentPosition)
-        put("flywheel/left/velocity", leftMotor.velocity)
-        put("flywheel/right/position", rightMotor.currentPosition)
-        put("flywheel/right/velocity", rightMotor.velocity)
+        put("flywheel/left/velocity", lastLeftVelocity)
+        put("flywheel/right/velocity", lastRightVelocity)
         put("flywheel/averageVelocity", velocity)
     }
 

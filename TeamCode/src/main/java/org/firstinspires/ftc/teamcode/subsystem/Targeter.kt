@@ -18,11 +18,6 @@ class Targeter(follower: Follower, private val isRed: Boolean) {
         val y: Double  // Field inches
     )
 
-    @Config
-    companion object {
-        @JvmField var defaultVelocity: Double = 1550.0
-    }
-
     private val localizer: Localizer = follower.localizer
     private val targets: MutableList<Target> = ArrayList()
     private var currentIndex = 0
@@ -75,7 +70,6 @@ class Targeter(follower: Follower, private val isRed: Boolean) {
 
         return -(top + (bottom - top) * dy)
     }
-
 
     val flywheelSpeed: Double
         get() =

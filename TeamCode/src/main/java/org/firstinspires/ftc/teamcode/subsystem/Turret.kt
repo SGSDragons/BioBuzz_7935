@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystem
 import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
+import kotlin.math.max
 
 class Turret(hardwareMap: HardwareMap) {
     val servos: List<Servo> = listOf(
@@ -17,9 +18,6 @@ class Turret(hardwareMap: HardwareMap) {
         @JvmField var maxAngle: Double = -90.0
     }
 
-    val validAngleRange
-        get() = minAngle..maxAngle
-
     init {
         setAngle(180.0)
     }
@@ -29,11 +27,16 @@ class Turret(hardwareMap: HardwareMap) {
         while (newAngle > 0) {
             newAngle -= 360
         }
-        if (newAngle !in validAngleRange) {
+
+        // Ignore it if it's too out of bounds.
+        if (newAngle < minAngle - 15.0 || newAngle > maxAngle + 15.0) {
             return
         }
 
-        val servoPosition: Double = (newAngle - validAngleRange.start) / (validAngleRange.endInclusive - validAngleRange.start)
+        newAngle = maxOf(minAngle, newAngle)
+        newAngle = minOf(maxAngle, newAngle)
+
+        val servoPosition: Double = (newAngle - minAngle) / (maxAngle - minAngle)
         servos.forEach {
             it.position = servoPosition
         }

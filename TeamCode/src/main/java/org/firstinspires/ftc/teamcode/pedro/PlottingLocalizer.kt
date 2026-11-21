@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedro
 
-import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.pedropathing.localization.Localizer
 import com.pedropathing.localization.MotionState
 import com.pedropathing.math.Pose
@@ -45,14 +43,7 @@ class PlottingLocalizer(val pinpoint: Localizer): Localizer {
 
     override fun update() {
         pinpoint.update()
-        val pose = pinpoint.pose()
-        FieldDrawing.updateBotPose(pose)
-
-        val packet = TelemetryPacket()
-        packet.put("robotX", pose.x())
-        packet.put("robotY", pose.y())
-        packet.put("heading", Math.toDegrees(pose.heading()))
-        FtcDashboard.getInstance().sendTelemetryPacket(packet)
+        FieldDrawing.updateBotPose(pinpoint.pose())
     }
 
     override fun reset() {
