@@ -14,7 +14,6 @@ class IntakeFeeder(hardwareMap: HardwareMap) {
     private val intakeMotor: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "intake")
     private val feederMotor: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "feeder")
     private var startTime = -1.0
-    private var currentDipCount = 1
 
     init {
         intakeMotor.direction = DcMotorSimple.Direction.FORWARD
@@ -44,8 +43,8 @@ class IntakeFeeder(hardwareMap: HardwareMap) {
     }
 
     fun update() {
-        put("intake/current", intakeMotor.getCurrent(CurrentUnit.AMPS))
-        put("feeder/current", feederMotor.getCurrent(CurrentUnit.AMPS))
+        put("intake/current") { intakeMotor.getCurrent(CurrentUnit.AMPS) }
+        put("feeder/current") { feederMotor.getCurrent(CurrentUnit.AMPS) }
     }
 
     @Config
@@ -54,7 +53,6 @@ class IntakeFeeder(hardwareMap: HardwareMap) {
         @JvmField var feederPower: Double = 1.0
         @JvmField var pulseTime = 100;
         @JvmField var pulseRate = 5.0;
-        @JvmField var detectPollen = 2.0;
     }
 }
 

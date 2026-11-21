@@ -56,15 +56,10 @@ class Flywheel(hardwareMap: HardwareMap) {
         lastLeftVelocity = leftMotor.velocity
         lastRightVelocity = rightMotor.velocity
 
-        put("flywheel/target", targetSpeed)
-
-        put(
-            "flywheel/left/kP",
-            leftMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).p
-        )
-        put("flywheel/left/velocity", lastLeftVelocity)
-        put("flywheel/right/velocity", lastRightVelocity)
-        put("flywheel/averageVelocity", velocity)
+        put("flywheel/target") { targetSpeed }
+        put("flywheel/left/velocity") { lastLeftVelocity }
+        put("flywheel/right/velocity") { lastRightVelocity }
+        put("flywheel/averageVelocity") { velocity }
     }
 
     @Config
@@ -75,6 +70,5 @@ class Flywheel(hardwareMap: HardwareMap) {
         @JvmField var kD: Double = 20.0
         @JvmField var LEFT_FORWARD: Boolean = true
         @JvmField var RIGHT_FORWARD: Boolean = true
-        @JvmField var velocityLossWhenShot: Int = 100
     }
 }

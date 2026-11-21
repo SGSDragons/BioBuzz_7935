@@ -20,7 +20,7 @@ fun Command.forTime(ms: Int): Command = race(this, waitMs(ms.toDouble()))
 private var activeAutomator: Automator? = null
 fun Command.run() {
     if (activeAutomator == null) {
-        Telemetry.put("automator/nullError", "Attempt to run .run() without automator initialized!")
+        Telemetry.put("automator/nullError") { "Attempt to run .run() without automator initialized!" }
         return
     }
     activeAutomator!!.scheduleWrapper(this)
@@ -112,7 +112,7 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
 
     fun instantCommand(op: () -> Unit): Command {
         return Command.build()
-            .setStart { op }
+            .setStart { op() }
             .setDone { true }
     }
 

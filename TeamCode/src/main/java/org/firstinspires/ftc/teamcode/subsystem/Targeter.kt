@@ -87,20 +87,12 @@ class Targeter(follower: Follower, private val isRed: Boolean) {
         }
     }
 
-    fun nextTarget() {
-        currentIndex = (currentIndex + 1) % targets.size
-    }
-
     val currentTarget: Target
         get() = targets[currentIndex]
 
     // Turret range in radians, reflective to the robot's forward direction TUNE
     private val turretMinAngle = 0.0
     private val turretMaxAngle = 2 * Math.PI
-
-    // Flywheel speed = base + perInch * distance. TUNE ON FEILD.
-    private val flywheelBase = 1000.0 // base speed in ticks per second
-    private val flywheelPerInch = 8.0
 
     // Constructor: gets the Localizer from the Follower
     init {
@@ -118,8 +110,9 @@ class Targeter(follower: Follower, private val isRed: Boolean) {
         val p = turretVector3
         val t = this.currentTarget
         val t3 = Vector3(t.x, t.y, 60.0)
-        Telemetry.put("targeter/distance", hypot(hypot(t3.x - p.x, t3.y - p.y), t3.z - p.z))
-        return hypot(hypot(t3.x - p.x, t3.y - p.y), t3.z - p.z)
+        val hypot: Double = hypot(hypot(t3.x - p.x, t3.y - p.y), t3.z - p.z)
+        Telemetry.put("targeter/distance") { hypot }
+        return hypot
     }
 
     val aimValue: Double
@@ -135,7 +128,7 @@ class Targeter(follower: Follower, private val isRed: Boolean) {
             return 360 * max(0.0, min(1.0, value))
         }
 
-    // Wrap an angle into -PI..PI
+    // Wrap an angle into -PI to PI
     private fun wrap(a: Double): Double {
         var a = a
         while (a > turretMaxAngle) a -= 2 * Math.PI

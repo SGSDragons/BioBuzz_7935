@@ -3,21 +3,13 @@ package org.firstinspires.ftc.teamcode.subsystem
 import com.pedropathing.follower.Follower
 import com.pedropathing.follower.ManualDrive
 import com.pedropathing.math.Pose
-import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
 import org.firstinspires.ftc.teamcode.utils.AudioPlayer
-import kotlin.math.floor
 
 class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, val hardwareMap: HardwareMap, val isRed: Boolean) {
-    val feederMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "feeder").also { it.direction = DcMotorSimple.Direction.REVERSE }
-    val intakeMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "intake")
-    val intakePower = 1.0
-    val feederPower = 1.0
-
     private val follower: Follower = Constants.create(hardwareMap)
     private val turret: Turret = Turret(hardwareMap)
     private val targeter: Targeter = Targeter(follower, isRed)
@@ -107,9 +99,9 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
             driverGamepad.dpadRightWasPressed() -> follower.setHeading(Math.toRadians(-90.0))
         }
 
-        Telemetry.put("left stick y", -driverGamepad.left_stick_y)
-        Telemetry.put("left stick x", -driverGamepad.left_stick_x)
-        Telemetry.put("right stick x", -driverGamepad.right_stick_x)
+        Telemetry.put("left stick y") { -driverGamepad.left_stick_y }
+        Telemetry.put("left stick x") { -driverGamepad.left_stick_x }
+        Telemetry.put("right stick x") { -driverGamepad.right_stick_x }
 
         follower.update()
         intakeFeeder.update()
