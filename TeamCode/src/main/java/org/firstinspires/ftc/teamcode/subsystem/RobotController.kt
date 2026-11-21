@@ -31,13 +31,6 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
             intakeFeeder.setPowers(-operatorGamepad.left_stick_y.toDouble(), -operatorGamepad.right_stick_y.toDouble())
         }
 
-        // Operator Controls
-//        if (operatorGamepad.x) {
-//            targeter.setTarget(0)
-//        } else if (operatorGamepad.y) {
-//            targeter.setTarget(1)
-//        }
-
         if (operatorGamepad.dpadUpWasPressed()) {
             targeter.differential += 50
         } else if (operatorGamepad.dpadDownWasPressed()) {
@@ -62,6 +55,11 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
         if (operatorGamepad.x) {
             ramp.lower()
         }
+
+        if (operatorGamepad.a) {
+            ramp.agitate()
+        }
+
         if (operatorGamepad.y) {
             ramp.raise()
         }
@@ -104,6 +102,7 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
         Telemetry.put("right stick x") { -driverGamepad.right_stick_x }
 
         follower.update()
+        ramp.update()
         intakeFeeder.update()
         flywheel.update()
         Telemetry.send()

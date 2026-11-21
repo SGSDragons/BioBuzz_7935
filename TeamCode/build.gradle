@@ -35,6 +35,12 @@ android {
         }
         jniLibs.useLegacyPackaging true
     }
+
+    sourceSets {
+        main {
+            resources.srcDir 'src/main/java'
+        }
+    }
 }
 
 dependencies {

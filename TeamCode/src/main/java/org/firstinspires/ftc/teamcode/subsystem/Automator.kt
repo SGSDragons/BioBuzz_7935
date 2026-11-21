@@ -10,11 +10,13 @@ import com.pedropathing.ivy.groups.Groups.race
 import com.pedropathing.ivy.groups.Groups.sequential
 import com.pedropathing.ivy.pedro.PedroCommands.follow
 import com.pedropathing.math.Pose
+import com.pedropathing.paths.Path
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
+import org.firstinspires.ftc.teamcode.pedro.PointArrayLoader
 
 fun Command.forTime(ms: Int): Command = race(this, waitMs(ms.toDouble()))
 private var activeAutomator: Automator? = null
@@ -89,6 +91,8 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
 
     val lowerRamp: Command = instantCommand { ramp.lower() }
 
+    val agitateRamp: Command = instantCommand { ramp.agitate() }
+
     val raiseRamp: Command = instantCommand { ramp.raise() }
 
     val shoot = scheduledCommand(
@@ -98,8 +102,16 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
     //endregion
 
     //region Helper Functions
-    fun goto(path: com.pedropathing.paths.Path): Command {
-        return follow(follower, path)
+    fun goto(path: Path): Command {
+        val drive = follow(follower, path)
+        val waits = PointArrayLoader.waitsFor(path)
+        if (waits == null || !waits.any) return drive
+
+        val parts = ArrayList<Command>()
+        if (waits.beforeMs > 0) parts += waitMs(waits.beforeMs.toDouble())
+        parts += drive
+        if (waits.afterMs > 0) parts += waitMs(waits.afterMs.toDouble())
+        return sequential(*parts.toTypedArray())
     }
 
     fun scheduledCommand(vararg commands: Command): Command {
@@ -131,6 +143,7 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
 
     fun update() {
         follower.update()
+        ramp.update()
         Scheduler.execute()
         turret.setAngle(targeter.aimValue)
         flywheel.update()
