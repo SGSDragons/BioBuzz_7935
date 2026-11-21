@@ -72,24 +72,24 @@ abstract class TwelveBallAuto(val isRed: Boolean) : LinearOpMode() {
         Commands.waitMs(500.0),
         a.stopIntake,
         a.goto(postPickup1()),
-
-        // Drive to other side and shoot
-        a.goto(traverse()),
-        a.shoot,
-
-        a.lowerRamp,
-        a.goto(reverse()),
-        a.startIntake,
-        a.goto(prepPickup2()).forTime(1000), // Overshoot and stop if it takes too long
-        Commands.waitMs(1500.0),
-        a.goto(reverseForward(prepPickup2, 6.0, 0.0)).forTime(1000),
-        Commands.waitMs(500.0),
-        a.stopIntake,
-        a.shoot,
-
-        // Park
-        a.goto(postPickup2()),
-        a.raiseRamp,
+//
+//        // Drive to other side and shoot
+//        a.goto(traverse()),
+//        a.shoot,
+//
+//        a.lowerRamp,
+//        a.goto(reverse()),
+//        a.startIntake,
+//        a.goto(prepPickup2()).forTime(1000), // Overshoot and stop if it takes too long
+//        Commands.waitMs(1500.0),
+//        a.goto(reverseForward(prepPickup2, 6.0, 0.0)).forTime(1000),
+//        Commands.waitMs(500.0),
+//        a.stopIntake,
+//        a.shoot,
+//
+//        // Park
+//        a.goto(postPickup2()),
+//        a.raiseRamp,
         a.goto(park())
     )
 
