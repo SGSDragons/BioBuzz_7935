@@ -4,33 +4,39 @@ import com.pedropathing.api.Paths
 import com.pedropathing.api.PoseFactory
 import com.pedropathing.math.Pose
 import com.pedropathing.paths.Path
+import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Loads a Pedro Pathing visualizer export at runtime. Paths can be fetched by
- * the name you gave them in the visualizer, or by number (0-based, in the order
- * sequenced in the visualizer).
+ * Loads a Pedro Pathing visualizer export at runtime.
  *
  * File location:
  *     TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/paths/<fileName>
  * (Gradle must be told to package non-code files from src/main/java.)
  *
- * Usage:
- *     val auto = PointArrayLoader.load("TwelveBallAuto.pp", poseFactory)
- *     follower.setStartingPose(auto.startPose)
+ * Individual paths (by name or 0-based number in the file's sequence order):
+ *     val auto = PointArrayLoader.load("TwelveBallAuto", poseFactory)
+ *     auto["FlowerPickup1"].path()      // works even if the path lives inside a group
+ *     auto[2].path()
  *
- *     auto["Traverse"].path()          // by name -> Path
- *     auto[2].path()                   // by number -> Path
+ * Groups (the "compound" lines in the visualizer):
+ *     auto.group("Pickup1")             // Group
+ *     auto.group("Pickup1")["FlowerPickup1"].path()
+ *     auto.group("Pickup1").steps       // its paths, in order
+ *     auto.groupNames
  *
- * Customizing (local values, see pedropathing.com/docs/pathing/guide/modifiers):
- *     auto.customizeAll { it.with(Constants.foresightConfig.maxDecelerationScale.at(0.75)) }
- *     auto.customize("Traverse") { it.with(Constants.foresightConfig.maxPathSpeed.at(0.8)) }
- *     auto.customize(2) { it.with(...) }
- *   Call these BEFORE calling path(). customizeAll runs first, then the
- *   per-path ones, so per-path values win.
+ * The sequence the file specifies:
+ *     auto.sequence                     // List<Step>, in the order the file runs them
+ *     (Automator.runSequence(auto) turns this into a Command.)
  *
- * NOTE: the wait times (waitBeforeMs / waitAfterMs) are only exposed as data.
- * This loader does not wait for you; your OpMode has to do that.
+ * Customizing (local values). Call BEFORE path(). Order applied:
+ * customizeAll -> customizeGroup -> per-path, so more specific wins.
+ *     auto.customizeAll { it.with(...) }
+ *     auto.customizeGroup("Pickup1") { it.with(...) }
+ *     auto.customize("Traverse1") { it.with(...) }
+ *
+ * NOTE: wait times are only exposed as data (and picked up by Automator.goto /
+ * gotoGroup / runSequence). This loader does not wait for you.
  */
 @Suppress("unused")
 object PointArrayLoader {
@@ -52,10 +58,11 @@ object PointArrayLoader {
     // Weak keys: entries disappear when the Path is garbage collected.
     private val waitsByPath = java.util.Collections.synchronizedMap(java.util.WeakHashMap<Path, Waits>())
 
-    /** The waits that came with this Path from the file, or null if it wasn't built by this loader. */
+    /** The path's OWN waits (not its group's), or null if it wasn't built by this loader. */
     fun waitsFor(path: Path): Waits? = waitsByPath[path]
 
     class Step(
+        /** Position in the file's sequence (0-based). */
         val index: Int,
         /** Empty string if the path was not named in the visualizer. */
         val name: String,
@@ -66,10 +73,15 @@ object PointArrayLoader {
         val waitAfterName: String,
         private val build: () -> Path,
     ) {
+        /** The group this path belongs to in the visualizer, or null if it isn't in one. */
+        var group: Group? = null
+            internal set
+
         private val globalModifiers = ArrayList<(Path) -> Path>()
+        private val groupModifiers = ArrayList<(Path) -> Path>()
         private val localModifiers = ArrayList<(Path) -> Path>()
 
-        /** Applied to this path every time it is built, after any customizeAll modifiers. */
+        /** Applied to this path every time it is built, after customizeAll / customizeGroup modifiers. */
         fun customize(block: (Path) -> Path): Step {
             localModifiers += block
             return this
@@ -79,10 +91,15 @@ object PointArrayLoader {
             globalModifiers += block
         }
 
+        internal fun customizeGroupLevel(block: (Path) -> Path) {
+            groupModifiers += block
+        }
+
         /** Builds a fresh Path each time it is called, with all customizations applied. */
         fun path(): Path {
             var p = build()
             for (m in globalModifiers) p = m(p)
+            for (m in groupModifiers) p = m(p)
             for (m in localModifiers) p = m(p)
             waitsByPath[p] = Waits(waitBeforeMs, waitAfterMs, waitBeforeName, waitAfterName)
             return p
@@ -93,14 +110,64 @@ object PointArrayLoader {
         override fun toString() = if (name.isEmpty()) "#$index" else "#$index '$name'"
     }
 
+    /** A "compound" line from the visualizer: several paths with shared waits. */
+    class Group(
+        /** Empty string if the group was not named. */
+        val name: String,
+        /** Waits before the group's first path / after its last path. */
+        val waitBeforeMs: Long,
+        val waitAfterMs: Long,
+        val waitBeforeName: String,
+        val waitAfterName: String,
+    ) {
+        private val members = ArrayList<Step>()
+
+        internal fun add(step: Step) {
+            members += step
+        }
+
+        /** The group's paths, in sequence order. */
+        val steps: List<Step> get() = members
+
+        val size: Int get() = members.size
+
+        /** Names of the group's named paths. */
+        val names: List<String> get() = members.map { it.name }.filter { it.isNotEmpty() }
+
+        operator fun get(index: Int): Step =
+            members.getOrNull(index)
+                ?: error("Group '$name' has no path #$index (it has ${members.size})")
+
+        operator fun get(name: String): Step =
+            members.firstOrNull { it.name == name }
+                ?: error("Group '${this.name}' has no path named '$name'. Its paths: ${names.ifEmpty { listOf("(none)") }}")
+
+        fun path(index: Int): Path = get(index).path()
+        fun path(name: String): Path = get(name).path()
+
+        /** All of the group's paths, as functions. */
+        val paths: Array<() -> Path> get() = Array(members.size) { members[it]::path }
+
+        /** Apply a modifier to every path in this group. */
+        fun customize(block: (Path) -> Path): Group {
+            members.forEach { it.customizeGroupLevel(block) }
+            return this
+        }
+
+        override fun toString() = if (name.isEmpty()) "group(${members.size} paths)" else "group '$name'"
+    }
+
     class Loaded(
         val startPose: Pose,
+        /** Every path, in the order the file's sequence runs them. */
         val steps: List<Step>,
         /** Things in the file this loader could not honor exactly. Worth logging to telemetry. */
         val warnings: List<String> = emptyList(),
+        val groups: List<Group> = emptyList(),
     ) {
 
         private val byName: Map<String, Step>
+        private val groupsByName: Map<String, Group>
 
         init {
             val map = LinkedHashMap<String, Step>()
@@ -110,14 +177,27 @@ object PointArrayLoader {
                 require(clash == null) { "Duplicate path name '${s.name}' (paths #${clash!!.index} and #${s.index})" }
             }
             byName = map
+
+            val gmap = LinkedHashMap<String, Group>()
+            for (g in groups) {
+                if (g.name.isEmpty()) continue
+                require(gmap.put(g.name, g) == null) { "Duplicate group name '${g.name}'" }
+            }
+            groupsByName = gmap
         }
+
+        /** The sequence the file specifies. Same list as [steps]. */
+        val sequence: List<Step> get() = steps
 
         val size: Int get() = steps.size
 
         /** Only the paths that were named, in order. */
         val names: List<String> get() = byName.keys.toList()
 
+        val groupNames: List<String> get() = groupsByName.keys.toList()
+
         fun has(name: String) = name in byName
+        fun hasGroup(name: String) = name in groupsByName
 
         operator fun get(index: Int): Step =
             steps.getOrNull(index)
@@ -127,12 +207,21 @@ object PointArrayLoader {
             byName[name]
                 ?: error("No path named '$name'. Named paths: ${byName.keys.ifEmpty { listOf("(none)") }}")
 
+        fun group(name: String): Group =
+            groupsByName[name]
+                ?: error("No group named '$name'. Groups: ${groupsByName.keys.ifEmpty { listOf("(none)") }}")
+
         fun path(index: Int): Path = get(index).path()
         fun path(name: String): Path = get(name).path()
 
-        /** Apply a modifier to every path. Runs before per-path customizations. */
+        /** Apply a modifier to every path. Runs before group and per-path customizations. */
         fun customizeAll(block: (Path) -> Path): Loaded {
             steps.forEach { it.customizeGlobal(block) }
+            return this
+        }
+
+        fun customizeGroup(name: String, block: (Path) -> Path): Loaded {
+            group(name).customize(block)
             return this
         }
 
@@ -146,7 +235,7 @@ object PointArrayLoader {
             return this
         }
 
-        /** All paths in order, as functions. */
+        /** All paths in sequence order, as functions. */
         val paths: Array<() -> Path> get() = Array(steps.size) { steps[it]::path }
     }
 
@@ -154,11 +243,39 @@ object PointArrayLoader {
         val root = JSONObject(readResource(fileName))
         val warnings = ArrayList<String>()
 
-        // Index lines by id, then order them by `sequence` (falls back to `lines` order).
-        val lines = root.getJSONArray("lines")
-        val byId = LinkedHashMap<String, JSONObject>()
-        for (i in 0 until lines.length()) lines.getJSONObject(i).let { byId[it.getString("id")] = it }
+        // 1. Flatten `lines`: every atomic path by id (including those inside compound
+        //    groups), every compound by id, and which compound owns each atomic path.
+        val atomicById = LinkedHashMap<String, JSONObject>()
+        val compoundById = LinkedHashMap<String, JSONObject>()
+        val ownerOf = HashMap<String, JSONObject>()
 
+        fun collect(l: JSONObject, owner: JSONObject?) {
+            if (l.optString("kind") == "compound") {
+                compoundById[l.getString("id")] = l
+                val segs: JSONArray? = l.optJSONArray("segments")
+                if (segs != null) for (i in 0 until segs.length()) collect(segs.getJSONObject(i), l)
+            } else {
+                val id = l.getString("id")
+                atomicById[id] = l
+                if (owner != null) ownerOf[id] = owner
+            }
+        }
+
+        val lines = root.getJSONArray("lines")
+        for (i in 0 until lines.length()) collect(lines.getJSONObject(i), null)
+
+        fun atomicsIn(c: JSONObject): List<JSONObject> {
+            val out = ArrayList<JSONObject>()
+            val segs: JSONArray = c.optJSONArray("segments") ?: return out
+            for (i in 0 until segs.length()) {
+                val s = segs.getJSONObject(i)
+                if (s.optString("kind") == "compound") out += atomicsIn(s) else out += s
+            }
+            return out
+        }
+
+        // 2. Order by `sequence` (a lineId may name a path or a whole group).
+        //    With no sequence, use file order.
         val ordered = ArrayList<JSONObject>()
         val seq = root.optJSONArray("sequence")
         if (seq != null && seq.length() > 0) {
@@ -166,14 +283,26 @@ object PointArrayLoader {
                 val e = seq.getJSONObject(i)
                 val kind = e.optString("kind")
                 if (kind == "path") {
-                    ordered += byId[e.getString("lineId")]
-                        ?: error("sequence references unknown lineId '${e.getString("lineId")}'")
+                    val id = e.getString("lineId")
+                    val atomic = atomicById[id]
+                    val compound = compoundById[id]
+                    when {
+                        atomic != null -> ordered += atomic
+                        compound != null -> ordered += atomicsIn(compound)
+                        else -> error("sequence references unknown lineId '$id'")
+                    }
                 } else {
                     warnings += "sequence entry #$i of kind '$kind' was skipped (only 'path' is supported)"
                 }
             }
+            val used = ordered.map { it.getString("id") }.toSet()
+            for ((id, a) in atomicById) {
+                if (id !in used) {
+                    warnings += "Path '${a.optString("name").ifEmpty { id }}' is in the file but not in the sequence, so it was not loaded"
+                }
+            }
         } else {
-            ordered += byId.values
+            ordered += atomicById.values
         }
 
         val sp = root.getJSONObject("startPoint")
@@ -182,6 +311,7 @@ object PointArrayLoader {
         var px = sp.getDouble("x")
         var py = sp.getDouble("y")
         val steps = ArrayList<Step>()
+        val groups = LinkedHashMap<String, Group>()   // compound id -> Group
 
         for ((index, line) in ordered.withIndex()) {
             val lineName = line.optString("name").ifEmpty { "#$index" }
@@ -240,7 +370,7 @@ object PointArrayLoader {
                 }
             }
 
-            steps += Step(
+            val step = Step(
                 index = index,
                 name = line.optString("name"),
                 waitBeforeMs = line.optLong("waitBeforeMs", 0),
@@ -249,18 +379,34 @@ object PointArrayLoader {
                 waitAfterName = line.optString("waitAfterName"),
                 build = build,
             )
+
+            val owner = ownerOf[line.getString("id")]
+            if (owner != null) {
+                val g = groups.getOrPut(owner.getString("id")) {
+                    Group(
+                        name = owner.optString("name"),
+                        waitBeforeMs = owner.optLong("waitBeforeMs", 0),
+                        waitAfterMs = owner.optLong("waitAfterMs", 0),
+                        waitBeforeName = owner.optString("waitBeforeName"),
+                        waitAfterName = owner.optString("waitAfterName"),
+                    )
+                }
+                g.add(step)
+                step.group = g
+            }
+
+            steps += step
             px = ex
             py = ey
         }
 
-        return Loaded(startPose, steps, warnings)
+        return Loaded(startPose, steps, warnings, groups.values.toList())
     }
+
     private fun readResource(fileName: String): String {
         val loader = PointArrayLoader::class.java.classLoader
         val stream = loader?.getResourceAsStream("$RESOURCE_DIR/$fileName")
-            ?: loader?.getResourceAsStream("$RESOURCE_DIR/$fileName.pp")
             ?: loader?.getResourceAsStream("$RESOURCE_DIR/$fileName.pp.json")
-            ?: loader?.getResourceAsStream("$RESOURCE_DIR/$fileName.json")
             ?: error("Path file not found on classpath: $RESOURCE_DIR/$fileName")
         return stream.bufferedReader().use { it.readText() }
     }

@@ -56,9 +56,9 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         loop = { flywheel.run(targeter.flywheelSpeed) },
         endCondition = {
             val flywheelSpeed: Double = targeter.flywheelSpeed
-            flywheel.velocity in (flywheelSpeed - 10)..(flywheelSpeed + 25)
+            flywheel.velocity in (flywheelSpeed - 50)..(flywheelSpeed + 75)
         }
-    )
+    ).forTime(5000)
 
     val feedPulseRate = 100;
     fun runFlywheel(): Command {
@@ -67,14 +67,14 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         return newCommand(
             start = {
                 startTime = System.currentTimeMillis()
-                feederMotor.power = 0.9
+                intakeMotor.power = 1.0
             },
             loop = {
                 flywheel.run(targeter.flywheelSpeed)
 
                 // Pulse the intake 1/3 of the time to give the flywheel time to recover
                 val elapsed = System.currentTimeMillis() - startTime
-                intakeMotor.power = if ((elapsed / feedPulseRate) % 3 == 2L) 1.0 else 0.0
+                feederMotor.power = if ((elapsed / feedPulseRate) % 3 == 2L) 0.9 else 0.0
             },
             end = {
                 flywheel.stop()
@@ -111,6 +111,30 @@ class Automator(val hardwareMap: HardwareMap, val start: Pose, val isRed: Boolea
         if (waits.beforeMs > 0) parts += waitMs(waits.beforeMs.toDouble())
         parts += drive
         if (waits.afterMs > 0) parts += waitMs(waits.afterMs.toDouble())
+        return sequential(*parts.toTypedArray())
+    }
+
+    fun gotoGroup(group: PointArrayLoader.Group): Command {
+        val parts = ArrayList<Command>()
+        if (group.waitBeforeMs > 0) parts += waitMs(group.waitBeforeMs.toDouble())
+        group.steps.forEach { parts += goto(it.path()) }
+        if (group.waitAfterMs > 0) parts += waitMs(group.waitAfterMs.toDouble())
+        return sequential(*parts.toTypedArray())
+    }
+
+    fun runSequence(auto: PointArrayLoader.Loaded): Command {
+        val seq = auto.sequence
+        val parts = ArrayList<Command>()
+        for ((i, step) in seq.withIndex()) {
+            val g = step.group
+            if (g != null && g !== seq.getOrNull(i - 1)?.group && g.waitBeforeMs > 0) {
+                parts += waitMs(g.waitBeforeMs.toDouble())
+            }
+            parts += goto(step.path())
+            if (g != null && g !== seq.getOrNull(i + 1)?.group && g.waitAfterMs > 0) {
+                parts += waitMs(g.waitAfterMs.toDouble())
+            }
+        }
         return sequential(*parts.toTypedArray())
     }
 

@@ -32,9 +32,14 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
         }
 
         if (operatorGamepad.dpadUpWasPressed()) {
-            targeter.differential += 50
+            Flywheel.kF = minOf(Flywheel.kF - 0.2, 20.0)
+            flywheel.reconfigure()
         } else if (operatorGamepad.dpadDownWasPressed()) {
-            targeter.differential -= 50
+            Flywheel.kF = maxOf(Flywheel.kF - 0.2, 13.0)
+            flywheel.reconfigure()
+        } else if (operatorGamepad.dpadLeftWasPressed() || operatorGamepad.dpadRightWasPressed()) {
+            Flywheel.kF = 14.0
+            flywheel.reconfigure()
         }
 
         if (operatorGamepad.bWasPressed()) {

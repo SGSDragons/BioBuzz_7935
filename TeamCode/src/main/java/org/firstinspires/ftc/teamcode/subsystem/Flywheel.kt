@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.utils.Telemetry
 import org.firstinspires.ftc.teamcode.utils.Telemetry.put
 
 
@@ -22,6 +23,8 @@ class Flywheel(hardwareMap: HardwareMap) {
 
         leftMotor.direction = if (LEFT_FORWARD) DcMotorSimple.Direction.FORWARD else DcMotorSimple.Direction.REVERSE
         rightMotor.direction = if (RIGHT_FORWARD) DcMotorSimple.Direction.FORWARD else DcMotorSimple.Direction.REVERSE
+
+        reconfigure()
     }
 
     fun reconfigure() {
@@ -52,7 +55,10 @@ class Flywheel(hardwareMap: HardwareMap) {
     }
 
     fun update() {
-        reconfigure() // Disable this in comp
+        if (Telemetry.PRACTICE_MODE) {
+            reconfigure()
+        }
+
         lastLeftVelocity = leftMotor.velocity
         lastRightVelocity = rightMotor.velocity
 
@@ -64,10 +70,10 @@ class Flywheel(hardwareMap: HardwareMap) {
 
     @Config
     companion object {
-        @JvmField var kF: Double = 15.0
-        @JvmField var kP: Double = 50.0
+        @JvmField var kF: Double = 14.0
+        @JvmField var kP: Double = 25.0
         @JvmField var kI: Double = 0.0
-        @JvmField var kD: Double = 20.0
+        @JvmField var kD: Double = 0.0
         @JvmField var LEFT_FORWARD: Boolean = true
         @JvmField var RIGHT_FORWARD: Boolean = true
     }

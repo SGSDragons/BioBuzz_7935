@@ -1,12 +1,12 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-21T20:41:59.628Z",
+  "timestamp": "2026-11-22T00:22:37.849Z",
   "startPoint": {
     "x": 58.219607843137254,
     "y": 6.890196078431373,
-    "headingDeg": 270,
+    "name": "TwelveBallAuto",
     "locked": false,
-    "name": "TwelveBallAuto"
+    "headingDeg": 270
   },
   "lines": [
     {
@@ -20,7 +20,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 20,
+        "x": 30.959313725490198,
         "y": 46.238725490196074
       },
       "controlPoints": [
@@ -52,8 +52,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mwqsgwgc-9d63mh",
+      "color": "#edc948",
+      "name": "FlowerPickup1",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 3000,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 14,
         "y": 46.241243695179136
@@ -62,18 +69,18 @@
       "heading": {
         "type": "tangential",
         "reverse": false
-      },
-      "color": "#edc948",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 3000,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "FlowerPickup1"
+      }
     },
     {
-      "kind": "atomic",
       "id": "line-mwqv37ef-exzniy",
+      "color": "#f28e2b",
+      "name": "FlowerBackup1",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 26.39223334416009,
         "y": 46.24
@@ -82,18 +89,18 @@
       "heading": {
         "type": "tangential",
         "reverse": true
-      },
-      "color": "#f28e2b",
+      }
+    },
+    {
+      "id": "line-mwqso6u4-xt66c9",
+      "color": "#e15759",
+      "name": "Traverse1",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "FlowerBackup1"
-    },
-    {
       "kind": "atomic",
-      "id": "line-mwqso6u4-xt66c9",
       "endPoint": {
         "x": 57.88583837497096,
         "y": 130.006069726434
@@ -132,21 +139,21 @@
             }
           ]
         }
-      },
-      "color": "#e15759",
+      }
+    },
+    {
+      "id": "line-mwqsqi47-a23qfz",
+      "color": "#b07aa1",
+      "name": "PrepFlowerPickup2",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "Traverse1"
-    },
-    {
       "kind": "atomic",
-      "id": "line-mwqsqi47-a23qfz",
       "endPoint": {
-        "x": 47,
-        "y": 116
+        "x": 47.13872549019608,
+        "y": 102.5436274509804
       },
       "controlPoints": [
         {
@@ -174,18 +181,18 @@
             }
           ]
         }
-      },
-      "color": "#b07aa1",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "PrepFlowerPickup2"
+      }
     },
     {
-      "kind": "atomic",
       "id": "line-mwqsrqq8-ndbabc",
+      "color": "#edc948",
+      "name": "FlowerPickup2",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 3000,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 47,
         "y": 126
@@ -194,80 +201,18 @@
       "heading": {
         "type": "tangential",
         "reverse": false
-      },
-      "color": "#edc948",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 3000,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "FlowerPickup2"
+      }
     },
     {
-      "kind": "atomic",
-      "id": "line-mwqv4hib-8na0cv",
-      "endPoint": {
-        "x": 47,
-        "y": 107.57
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "tangential",
-        "reverse": true
-      },
-      "color": "#f28e2b",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "FlowerBackup2"
-    },
-    {
-      "kind": "atomic",
-      "id": "line-mwqvcw57-dklcmw",
-      "endPoint": {
-        "x": 57.96922330919649,
-        "y": 130.2080119806475
-      },
-      "controlPoints": [
-        {
-          "x": 61.11068244634523,
-          "y": 111.12208591976875
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "reverse": false,
-        "degrees": 90,
-        "startDeg": 90,
-        "endDeg": 0,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "reversed": false,
-              "parameters": {
-                "startDeg": 0,
-                "endDeg": 0
-              }
-            }
-          ]
-        }
-      },
-      "color": "#e15759",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "Traverse2"
-    },
-    {
-      "kind": "atomic",
       "id": "line-mwqstff0-zgcb9b",
+      "color": "#e15759",
+      "name": "Park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 11.326141717938873,
         "y": 116.58201391985808
@@ -298,14 +243,7 @@
             }
           ]
         }
-      },
-      "color": "#e15759",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "Park"
+      }
     }
   ],
   "shapes": [
@@ -494,14 +432,6 @@
     {
       "kind": "path",
       "lineId": "line-mwqsrqq8-ndbabc"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-mwqv4hib-8na0cv"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-mwqvcw57-dklcmw"
     },
     {
       "kind": "path",

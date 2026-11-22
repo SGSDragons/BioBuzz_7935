@@ -13,6 +13,7 @@ import com.pedropathing.ivy.pedro.PedroCommands.follow
 import com.pedropathing.math.Pose
 import com.pedropathing.paths.Path
 import com.pedropathing.paths.interpolator.Interpolator
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.pedro.Constants
@@ -23,19 +24,23 @@ import org.firstinspires.ftc.teamcode.utils.Telemetry
 import kotlin.math.cos
 import kotlin.math.sin
 
-@TeleOp(name = "TwelveBallAutoExperimental", group = "Test")
+@Autonomous(name = "TwelveBallAutoExperimental", group = "Test")
 class TwelveBallAutoExperimental : LinearOpMode() {
     val isRed = true
     val poseFactory: PoseFactory = PoseFactory.degrees().let {
         if (isRed) {
-            it.mirrorAroundPoint(70.75, 70.75)
-        } else {
             it
+        } else {
+            it.mirrorAroundPoint(70.75, 70.75)
         }
     }
 
     lateinit var automator: Automator
-    val auto = PointArrayLoader.load("TwelveBallAuto", poseFactory)
+    val auto = PointArrayLoader.load("TwelveBallAuto", poseFactory).also { it ->
+        listOf("FlowerPickup1", "FlowerPickup2").forEach { name ->
+            it.customize(name) { it.with(Constants.foresightConfig.maxPathSpeed.at(0.4)) }
+        }
+    }
 
     fun autoRoutine(a: Automator): Command = sequential(
         a.windupFlywheel,
@@ -88,21 +93,4 @@ class TwelveBallAutoExperimental : LinearOpMode() {
             Telemetry.send()
         }
     }
-
-    fun reverseForward(startPose: Pose, reverse: Double, strafe: Double): Path {
-        val heading = startPose.heading() // radians in Pedro's coordinate system
-
-        // Step backward along (-cos(heading), -sin(heading)) so it works for any pose
-        val reversePose = Pose(
-            startPose.x() - reverse * cos(heading) - strafe * sin(heading),
-            startPose.y() - reverse * sin(heading) + strafe * cos(heading),
-            heading
-        )
-
-        val reversePath = Paths.line(startPose, reversePose).constant(heading)
-        val forwardPath = Paths.line(reversePose, startPose).constant(heading)
-
-        return Paths.path(reversePath, forwardPath)
-    }
-
 }
