@@ -18,14 +18,14 @@ object Telemetry {
 
     @JvmStatic
     fun send() {
-        if (PRACTICE_MODE) {
-            val now = System.currentTimeMillis()
-            packet.put("latencyMs", now - lastTick)
-            lastTick = now
+        val now = System.currentTimeMillis()
+        packet.put("latencyMs", now - lastTick)
+        lastTick = now
 
+        if (PRACTICE_MODE) {
             FieldDrawing.update(packet.fieldOverlay())
-            FtcDashboard.getInstance().sendTelemetryPacket(packet)
-            packet = TelemetryPacket(false)
         }
+        FtcDashboard.getInstance().sendTelemetryPacket(packet)
+        packet = TelemetryPacket(false)
     }
 }

@@ -4,12 +4,18 @@ import com.acmerobotics.dashboard.config.Config
 import com.pedropathing.follower.Follower
 import com.pedropathing.localization.Localizer
 import org.firstinspires.ftc.teamcode.utils.Telemetry
+import org.firstinspires.ftc.teamcode.utils.Vector3
 import kotlin.math.atan2
 import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
 
 @Config
+object TargetSpeed {
+    @JvmField var overrideSpeed = false
+    @JvmField var speed = -1500.0
+}
+
 class Targeter(follower: Follower, private val isRed: Boolean) {
     // named spot on field
     data class Target(
@@ -28,12 +34,12 @@ class Targeter(follower: Follower, private val isRed: Boolean) {
     private val velocityLookupTable: List<List<Double>> =
         listOf(
                  //   -1      0      1       2       3       4      5
-            listOf(1750.0, 1580.0, 1575.0, 1550.0, 1575.0, 1580.0, 1750.0), // 0
-            listOf(1700.0, 1560.0, 1555.0, 1545.0, 1555.0, 1560.0, 1700.0), // 1
+            listOf(1500.0, 1420.0, 1400.0, 1420.0, 1500.0, 1550.0, 1625.0), // 0
+            listOf(1480.0, 1400.0, 1380.0, 1400.0, 1480.0, 1500.0, 1600.0), // 1
             listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 2 Always low velocity, cant see hive
-            listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 3 Low velocity
-            listOf(1700.0, 1560.0, 1555.0, 1545.0, 1555.0, 1560.0, 1700.0), // 4
-            listOf(1750.0, 1580.0, 1575.0, 1550.0, 1575.0, 1580.0, 1750.0), // 5
+            listOf(1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0), // 2 Low velocity
+            listOf(1480.0, 1400.0, 1380.0, 1400.0, 1480.0, 1500.0, 1600.0), // 1
+            listOf(1500.0, 1420.0, 1400.0, 1420.0, 1500.0, 1550.0, 1625.0), // 0
         )
 
     private fun getVelocityFromXY(x: Double, y: Double): Double {
@@ -69,9 +75,13 @@ class Targeter(follower: Follower, private val isRed: Boolean) {
         return -(top + (bottom - top) * dy)
     }
 
-    val flywheelSpeed: Double
-        get() =
-            getVelocityFromXY(localizer.pose().x(), localizer.pose().y())
+    val flywheelSpeed: Double get() {
+        if (TargetSpeed.overrideSpeed) {
+            return TargetSpeed.speed
+        } else {
+            return getVelocityFromXY(localizer.pose().x(), localizer.pose().y())
+        }
+    }
 
     fun addTarget(t: Target?) {
         targets.add(t!!)

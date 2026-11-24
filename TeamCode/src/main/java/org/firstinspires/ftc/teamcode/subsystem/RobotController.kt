@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystem
 
 import com.pedropathing.follower.Follower
-import com.pedropathing.follower.ManualDrive
 import com.pedropathing.math.Pose
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.commands.DriverCommands
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 import org.firstinspires.ftc.teamcode.pedro.Constants
 import org.firstinspires.ftc.teamcode.utils.AudioPlayer
@@ -18,6 +18,8 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
     private val ramp = Ramp(hardwareMap)
     private val audioPlayer = AudioPlayer(hardwareMap.appContext)
     private var autoAim: Boolean = true
+
+    private val driverCommands = DriverCommands(driverGamepad, follower)
 
     fun setPose(x: Double, y: Double, headingDegrees: Double) {
         follower.localizer.setPose(Pose(x, y, Math.toRadians(headingDegrees)))
@@ -79,32 +81,7 @@ class RobotController(val driverGamepad: Gamepad, val operatorGamepad: Gamepad, 
             flywheel.stop()
         }
 
-        // Driver Controls
-        follower.manual(
-            ManualDrive.fieldCentric(
-            -driverGamepad.left_stick_y.toDouble(),
-            -driverGamepad.left_stick_x.toDouble(),
-            -driverGamepad.right_stick_x.toDouble(),
-            follower.pose().heading()));
-
-        if (driverGamepad.dpad_up) {
-            follower.setHeading(0.0)
-        }
-
-        when {
-            driverGamepad.aWasPressed() -> follower.setPose(FieldPoints.nearFlower)
-            driverGamepad.xWasPressed() -> follower.setPose(FieldPoints.leftFlower)
-            driverGamepad.bWasPressed() -> follower.setPose(FieldPoints.rightFlower)
-            driverGamepad.yWasPressed() -> follower.setPose(FieldPoints.farFlower)
-            driverGamepad.dpadUpWasPressed() -> follower.setHeading(0.0)
-            driverGamepad.dpadDownWasPressed() -> follower.setHeading(Math.toRadians(180.0))
-            driverGamepad.dpadLeftWasPressed() -> follower.setHeading(Math.toRadians(90.0))
-            driverGamepad.dpadRightWasPressed() -> follower.setHeading(Math.toRadians(-90.0))
-        }
-
-        Telemetry.put("left stick y") { -driverGamepad.left_stick_y }
-        Telemetry.put("left stick x") { -driverGamepad.left_stick_x }
-        Telemetry.put("right stick x") { -driverGamepad.right_stick_x }
+        driverCommands.update()
 
         follower.update()
         ramp.update()

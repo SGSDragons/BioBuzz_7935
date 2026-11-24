@@ -3,19 +3,24 @@ package org.firstinspires.ftc.teamcode.subsystem
 import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
+import org.firstinspires.ftc.teamcode.utils.Telemetry
 import kotlin.math.max
+
+@Config
+object TurretConf {
+    @JvmField var minAngle: Double = -290.0
+    @JvmField var maxAngle: Double = -60.0
+}
 
 class Turret(hardwareMap: HardwareMap) {
     val servos: List<Servo> = listOf(
-        hardwareMap.get(Servo::class.java, "mini"),
+        hardwareMap.get(Servo::class.java, "mini")
+            .also { it.direction = Servo.Direction.REVERSE },
         hardwareMap.get(Servo::class.java, "max")
-            .also { it.direction = Servo.Direction.REVERSE }
     )
 
     @Config
     companion object {
-        @JvmField var minAngle: Double = -270.0
-        @JvmField var maxAngle: Double = -90.0
     }
 
     init {
@@ -23,10 +28,13 @@ class Turret(hardwareMap: HardwareMap) {
     }
 
     fun setAngle(angle: Double) {
-        var newAngle = -angle
+        var newAngle = angle
         while (newAngle > 0) {
             newAngle -= 360
         }
+
+        val minAngle = TurretConf.minAngle
+        val maxAngle = TurretConf.maxAngle
 
         // Ignore it if it's too out of bounds.
         if (newAngle < minAngle - 15.0 || newAngle > maxAngle + 15.0) {
@@ -40,6 +48,9 @@ class Turret(hardwareMap: HardwareMap) {
         servos.forEach {
             it.position = servoPosition
         }
+
+        Telemetry.put("turret/servo") { servoPosition }
+        Telemetry.put("turret/angle") { newAngle }
 
         //FieldDrawing.updateTurretTarget()
     }
