@@ -6,6 +6,7 @@ import com.pedropathing.math.Pose
 import com.qualcomm.robotcore.hardware.Gamepad
 import org.firstinspires.ftc.teamcode.subsystem.FieldPoints
 import org.firstinspires.ftc.teamcode.utils.Telemetry
+import kotlin.math.abs
 
 class DriverCommands(val gamepad: Gamepad, val follower: Follower) {
 
@@ -26,6 +27,7 @@ class DriverCommands(val gamepad: Gamepad, val follower: Follower) {
         when {
             gamepad.aWasPressed() -> snapXY(FieldPoints.nearFlower)
             gamepad.yWasPressed() -> snapWall()
+            gamepad.rightBumperWasPressed() -> snapHeading()
 
             gamepad.dpadUpWasPressed() -> follower.setHeading(0.0)
             gamepad.dpadDownWasPressed() -> follower.setHeading(Math.toRadians(180.0))
@@ -47,6 +49,34 @@ class DriverCommands(val gamepad: Gamepad, val follower: Follower) {
     fun snapXY(point: Pose) {
         // Snap the robot's X/Y to the input point. Do not change the heading
         follower.setPose(point.withHeading(follower.pose().heading()))
+    }
+
+    val orientations = listOf(
+        -Math.PI/2.0,
+        0.0,
+        Math.PI/2.0,
+        Math.PI,
+    )
+    fun snapHeading() {
+        // Assume bot is axis aligned and reset the heading to whichever
+        // is closest to the current
+        val initPose = follower.pose()
+        var currentHeading = initPose.heading()
+        while (currentHeading > orientations.first()) {
+            currentHeading -= 2*Math.PI
+        }
+        while (currentHeading < orientations.last()) {
+            currentHeading += 2*Math.PI
+        }
+
+        val tolerance = Math.PI / 8.0
+
+        for (o in orientations) {
+            val error = abs(o - currentHeading)
+            if (error < tolerance) {
+                follower.setPose(initPose.withHeading(o))
+            }
+        }
     }
 
     fun snapWall() {
@@ -74,7 +104,6 @@ class DriverCommands(val gamepad: Gamepad, val follower: Follower) {
             // Ambiguous which one to set. Do nothing
             return
         }
-
 
         // Exactly one of these will be true
         val newPose = when {
